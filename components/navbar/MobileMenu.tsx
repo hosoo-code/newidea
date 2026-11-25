@@ -25,7 +25,7 @@ const MobileMenu = ({ loggedIn = false, isAdmin = false }: { loggedIn?: boolean;
 
       {/* Mobile Navigation Menu */}
       {isOpen && (
-        <div className="absolute top-16 left-0 w-full bg-black/95 backdrop-blur-md border-t border-gray-800/50 md:hidden">
+        <div className="fixed top-16 left-0 w-full max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain bg-black/95 backdrop-blur-md border-t border-gray-800/50 md:hidden">
           <div className="px-4 py-3 space-y-2">
             {[
               { href: "/", label: "Home" },
@@ -33,7 +33,7 @@ const MobileMenu = ({ loggedIn = false, isAdmin = false }: { loggedIn?: boolean;
               { href: "/movie", label: "Movies" },
               { href: "/series", label: "Series" },
               { href: "/watchlist", label: "Watchlist" },
-              { href: "/premium", label: "Premium" },
+              { href: "/premium", label: loggedIn ? "Premium / Профайл" : "Premium" },
               ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
             ].map((item) => (
               <Link
@@ -45,10 +45,18 @@ const MobileMenu = ({ loggedIn = false, isAdmin = false }: { loggedIn?: boolean;
                 {item.label}
               </Link>
             ))}
-            {loggedIn && (
+            {loggedIn ? (
               <div className="py-3 px-4" onClick={() => setIsOpen(false)}>
                 <LogoutButton />
               </div>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setIsOpen(false)}
+                className="block py-3 px-4 text-sm font-semibold text-black bg-theme-primary rounded-lg text-center"
+              >
+                Нэвтрэх
+              </Link>
             )}
           </div>
         </div>

@@ -18,9 +18,10 @@ export default async function AdminPage() {
   return (
     <div className="app-bg-enhanced min-h-screen pt-24 pb-12 px-4">
       <div className="max-w-5xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <h1 className="text-2xl font-bold text-white">Кинонууд ({movies.length})</h1>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
+            <Link href="/admin/plans" className="text-sm text-yellow-400 hover:text-yellow-300">Premium үнэ</Link>
             <LogoutButton />
             <Link href="/admin/movies/new" className="rounded-lg bg-theme-primary text-black font-semibold px-4 py-2">
               + Кино нэмэх

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { getCurrentProfile } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
-import { PLANS, isPlanId } from "@/lib/plans";
+import { getPlan } from "@/lib/plans";
 import { WireError, wireConfirmIntent, wireCreateIntent } from "@/lib/wire";
 import { getClientIp, rateLimit } from "@/lib/rateLimit";
 
@@ -14,19 +14,20 @@ export async function POST(req: NextRequest) {
   if (!rl.allowed) return NextResponse.json({ error: "Хэт олон оролдлого" }, { status: 429 });
 
   const { plan } = await req.json().catch(() => ({ plan: null }));
-  if (!isPlanId(plan)) return NextResponse.json({ error: "Багц буруу байна" }, { status: 400 });
-  const { amount } = PLANS[plan];
+  const selected = await getPlan(plan);
+  if (!selected) return NextResponse.json({ error: "Багц буруу байна" }, { status: 400 });
+  const { amount, days } = selected;
 
   const db = supabaseAdmin();
   const paymentId = randomUUID();
   const { error: insErr } = await db
     .from("payments")
-    .insert({ id: paymentId, user_id: profile.id, plan, amount });
+    .insert({ id: paymentId, user_id: profile.id, plan: selected.id, amount, days });
   if (insErr) return NextResponse.json({ error: "Төлбөр үүсгэж чадсангүй" }, { status: 500 });
 
   try {
     const created = await wireCreateIntent(
-      { amount, metadata: { payment_id: paymentId, user_id: profile.id, plan } },
+      { amount, metadata: { payment_id: paymentId, user_id: profile.id, plan: selected.id } },
       `create-${paymentId}`
     );
     await db.from("payments").update({ wire_payment_intent_id: created.id }).eq("id", paymentId);

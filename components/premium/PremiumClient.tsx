@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
 
-type Plan = { id: string; label: string; amount: number };
+type Plan = { id: string; label: string; amount: number; days: number };
 type PayLink = { href: string; label: string; logo?: string; kind: "web" | "app" };
 type Pay = { intentId: string; qrText?: string; qrImage?: string; links: PayLink[]; raw: unknown };
 
@@ -111,33 +111,49 @@ export default function PremiumClient({ plans }: { plans: Plan[] }) {
     }
   }
 
+  const bestId = [...plans].sort((a, b) => a.amount / a.days - b.amount / b.days)[0]?.id;
   const webLink = pay?.links.find((l) => l.kind === "web");
   const appLinks = pay?.links.filter((l) => l.kind === "app") ?? [];
 
   return (
     <>
-      <div className="grid sm:grid-cols-2 gap-4">
-        {plans.map((p) => (
-          <div key={p.id} className="glass-container p-6 space-y-4 text-center">
-            <h3 className="text-lg font-semibold text-white">{p.label}</h3>
-            <p className="text-3xl font-bold text-theme-primary">{p.amount.toLocaleString("mn-MN")}₮</p>
-            <button
-              onClick={() => buy(p.id)}
-              disabled={!!busy}
-              className="w-full rounded-lg bg-theme-primary text-black font-semibold py-2 disabled:opacity-50"
+      <div className={`grid grid-cols-1 gap-3 sm:gap-4 ${plans.length >= 3 ? "sm:grid-cols-3" : plans.length === 2 ? "sm:grid-cols-2" : ""}`}>
+        {plans.map((p) => {
+          const perMonth = Math.round((p.amount / p.days) * 30);
+          const best = plans.length > 1 && p.id === bestId;
+          return (
+            <div
+              key={p.id}
+              className={`glass-container relative text-center space-y-3 ${best ? "!border-theme-primary" : ""}`}
             >
-              {busy === p.id ? "..." : "QPay-аар төлөх"}
-            </button>
-          </div>
-        ))}
+              {best && (
+                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-theme-primary px-2.5 py-0.5 text-[11px] font-semibold text-black whitespace-nowrap">
+                  Хамгийн хэмнэлттэй
+                </span>
+              )}
+              <h3 className="text-lg font-semibold text-white">{p.label}</h3>
+              <p className="text-2xl sm:text-3xl font-bold text-theme-primary">{p.amount.toLocaleString("en-US")}₮</p>
+              <p className="text-xs text-gray-400">
+                {p.days} хоног · сард ≈ {perMonth.toLocaleString("en-US")}₮
+              </p>
+              <button
+                onClick={() => buy(p.id)}
+                disabled={!!busy}
+                className="w-full rounded-lg bg-theme-primary text-black font-semibold py-2.5 disabled:opacity-50"
+              >
+                {busy === p.id ? "..." : "QPay-аар төлөх"}
+              </button>
+            </div>
+          );
+        })}
       </div>
 
       {pay && (
-        <div className="glass-container p-6 mt-6 text-center space-y-4">
+        <div className="glass-container mt-6 text-center space-y-4">
           <h3 className="text-white font-semibold">QPay-аар төлнө үү</h3>
           {pay.qrImage ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={pay.qrImage} alt="QPay QR" className="mx-auto w-56 h-56 bg-white p-2 rounded-lg" />
+            <img src={pay.qrImage} alt="QPay QR" className="mx-auto w-full max-w-[14rem] aspect-square bg-white p-2 rounded-lg" />
           ) : pay.qrText ? (
             <div className="mx-auto bg-white p-3 rounded-lg inline-block">
               <QRCodeSVG value={pay.qrText} size={208} />
