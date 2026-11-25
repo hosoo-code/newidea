@@ -1,6 +1,6 @@
 import AuthForm from "@/components/auth/AuthForm";
 
-export const metadata = { title: "Нэвтрэх | Cineworld", robots: { index: false } };
+export const metadata = { title: "Нэвтрэх | Kino Mangas", robots: { index: false } };
 
 // Зөвхөн сайтын дотоод зам руу чиглүүлнэ (open redirect-ээс сэргийлнэ)
 const safeNext = (n?: string) => (n && n.startsWith("/") && !n.startsWith("//") ? n : "/");

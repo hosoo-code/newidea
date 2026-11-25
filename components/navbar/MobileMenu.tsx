@@ -2,8 +2,9 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
+import LogoutButton from "@/components/admin/LogoutButton";
 
-const MobileMenu = () => {
+const MobileMenu = ({ loggedIn = false, isAdmin = false }: { loggedIn?: boolean; isAdmin?: boolean }) => {
   const [isOpen, setIsOpen] = useState(false);
   const toggleNavbar = () => setIsOpen((prev) => !prev);
 
@@ -32,6 +33,8 @@ const MobileMenu = () => {
               { href: "/movie", label: "Movies" },
               { href: "/series", label: "Series" },
               { href: "/watchlist", label: "Watchlist" },
+              { href: "/premium", label: "Premium" },
+              ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
             ].map((item) => (
               <Link
                 key={item.href}
@@ -42,6 +45,11 @@ const MobileMenu = () => {
                 {item.label}
               </Link>
             ))}
+            {loggedIn && (
+              <div className="py-3 px-4" onClick={() => setIsOpen(false)}>
+                <LogoutButton />
+              </div>
+            )}
           </div>
         </div>
       )}

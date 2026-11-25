@@ -3,9 +3,9 @@ import InfoNotFound from "@/components/not-found/InfoNotFound";
 import MovieInfo from "@/components/movie/MovieInfo";
 
 export const metadata: Metadata = {
-  title: "Movie | Cineworld",
+  title: "Movie | Kino Mangas",
   description:
-    "Browse all movies available on Cineworld. Find trending, top-rated, and new releases.",
+    "Browse all movies available on Kino Mangas. Find trending, top-rated, and new releases.",
 };
 
 interface MovieDetailPageProps {

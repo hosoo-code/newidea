@@ -5,9 +5,9 @@ import MoviePageClient from "@/components/movie/MoviePageClient";
 import {PageLoading} from "@/components/loading/PageLoading";
 
 export const metadata: Metadata = {
-  title: "All Movies | Cineworld",
+  title: "All Movies | Kino Mangas",
   description:
-    "Browse all movies available on Cineworld. Find trending, top-rated, and new releases.",
+    "Browse all movies available on Kino Mangas. Find trending, top-rated, and new releases.",
 };
 
 export default function MoviePage() {

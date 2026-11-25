@@ -4,9 +4,9 @@ import CategorySection from "@/components/info/CategorySection";
 import LocalMoviesSection from "@/components/local/LocalMoviesSection";
 
 export const metadata: Metadata = {
-  title: "Home | Cineworld",
+  title: "Home | Kino Mangas",
   description:
-    "Browse all movies and tv shows currently available on Cineworld. Find trending, top-rated, and new releases.",
+    "Browse all movies and tv shows currently available on Kino Mangas. Find trending, top-rated, and new releases.",
 };
 
 export const revalidate = 60;

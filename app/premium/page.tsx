@@ -5,7 +5,7 @@ import MediaDetailLayout from "@/components/layout/MediaDetailLayout";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Premium | Cineworld" };
+export const metadata = { title: "Premium | Kino Mangas" };
 
 export default async function PremiumPage() {
   const profile = await getCurrentProfile();
@@ -15,7 +15,7 @@ export default async function PremiumPage() {
   return (
     <MediaDetailLayout className="pt-24">
       <div className="max-w-2xl mx-auto space-y-6">
-        <h1 className="text-3xl font-bold text-white text-center">Cineworld Premium</h1>
+        <h1 className="text-3xl font-bold text-white text-center">Kino Mangas Premium</h1>
         <p className="text-gray-300 text-center">Манай сангийн бүх киног хязгааргүй үзээрэй.</p>
 
         {!profile ? (

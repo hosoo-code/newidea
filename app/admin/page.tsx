@@ -4,7 +4,7 @@ import MovieRowActions from "@/components/admin/MovieRowActions";
 import LogoutButton from "@/components/admin/LogoutButton";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Admin | Cineworld", robots: { index: false } };
+export const metadata = { title: "Admin | Kino Mangas", robots: { index: false } };
 
 export default async function AdminPage() {
   let movies: Awaited<ReturnType<typeof adminListMovies>> = [];

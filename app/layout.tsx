@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "CineWorld",
-  description: "A World of Cinema",
+  title: "Kino Mangas",
+  description: "Кино Мангас",
 };
 
 interface RootLayoutProps {

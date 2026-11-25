@@ -7,8 +7,8 @@ import { getLocalMoviesPage } from "@/lib/movies";
 
 export const revalidate = 60;
 export const metadata: Metadata = {
-  title: "Бүх кино | Cineworld",
-  description: "Cineworld дээр нэмэгдсэн бүх кино.",
+  title: "Бүх кино | Kino Mangas",
+  description: "Kino Mangas дээр нэмэгдсэн бүх кино.",
 };
 
 const PAGE_SIZE = 24;

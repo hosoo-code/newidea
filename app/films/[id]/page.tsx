@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const movie = Number.isInteger(Number(id)) ? await getLocalMovie(Number(id)) : null;
   return {
-    title: movie ? `${movie.title} | Cineworld` : "Кино | Cineworld",
+    title: movie ? `${movie.title} | Kino Mangas` : "Кино | Kino Mangas",
     description: movie?.overview?.slice(0, 160) ?? undefined,
   };
 }
