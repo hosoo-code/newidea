@@ -1,12 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createHash } from "crypto";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { randomUUID } from "crypto";
+import { r2, R2_BUCKET } from "@/lib/r2";
+
+// Poster / backdrop зургийг Cloudflare R2 руу хадгална.
+// /api/admin/** нь middleware-ээр admin эрхээр хамгаалагдсан.
+const ALLOWED: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/avif": "avif",
+};
+const MAX_BYTES = 10 * 1024 * 1024;
 
 export async function POST(req: NextRequest) {
-  const cloud = process.env.CLOUDINARY_CLOUD_NAME;
-  const key = process.env.CLOUDINARY_API_KEY;
-  const secret = process.env.CLOUDINARY_API_SECRET;
-  if (!cloud || !key || !secret) {
-    return NextResponse.json({ error: "Cloudinary тохируулаагүй байна" }, { status: 500 });
+  const publicBase = (process.env.R2_IMAGES_PUBLIC_URL || process.env.R2_PUBLIC_URL)?.replace(/\/$/, "");
+  if (!process.env.R2_ACCOUNT_ID || !process.env.R2_BUCKET || !publicBase) {
+    return NextResponse.json({ error: "R2 тохируулаагүй байна" }, { status: 500 });
   }
 
   const form = await req.formData();
@@ -14,30 +24,31 @@ export async function POST(req: NextRequest) {
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "Файл олдсонгүй" }, { status: 400 });
   }
-  if (!file.type.startsWith("image/") || file.size > 10 * 1024 * 1024) {
-    return NextResponse.json({ error: "Зөвхөн 10MB-аас бага зураг" }, { status: 400 });
+  const ext = ALLOWED[file.type];
+  if (!ext) {
+    return NextResponse.json({ error: "Зөвхөн JPG, PNG, WebP, AVIF зураг" }, { status: 400 });
+  }
+  if (file.size > MAX_BYTES) {
+    return NextResponse.json({ error: "Зураг 10MB-аас бага байх ёстой" }, { status: 400 });
   }
 
-  const timestamp = Math.floor(Date.now() / 1000).toString();
-  const folder = "cineworld";
-  const signature = createHash("sha1")
-    .update(`folder=${folder}&timestamp=${timestamp}${secret}`)
-    .digest("hex");
+  const kind = form.get("kind") === "backdrop" ? "backdrops" : "posters";
+  const key = `${kind}/${randomUUID()}.${ext}`;
 
-  const body = new FormData();
-  body.append("file", file);
-  body.append("api_key", key);
-  body.append("timestamp", timestamp);
-  body.append("folder", folder);
-  body.append("signature", signature);
-
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloud}/image/upload`, {
-    method: "POST",
-    body,
-  });
-  const json = await res.json();
-  if (!res.ok) {
-    return NextResponse.json({ error: json?.error?.message ?? "Upload амжилтгүй" }, { status: 400 });
+  try {
+    await r2().send(
+      new PutObjectCommand({
+        Bucket: R2_BUCKET(),
+        Key: key,
+        Body: Buffer.from(await file.arrayBuffer()),
+        ContentType: file.type,
+        CacheControl: "public, max-age=31536000, immutable",
+      })
+    );
+  } catch (e) {
+    console.error("[r2] image upload failed:", e);
+    return NextResponse.json({ error: "R2 руу upload амжилтгүй" }, { status: 502 });
   }
-  return NextResponse.json({ url: json.secure_url as string });
+
+  return NextResponse.json({ url: `${publicBase}/${key}`, key });
 }

@@ -40,8 +40,7 @@ npm run dev
 |---|---|---|
 | TMDB | Кино/цувралын мэдээлэл | `TMDB_ACCESS_TOKEN` (эсвэл `API_KEY`) |
 | Supabase | Өөрийн киноны сан | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` |
-| Cloudflare R2 | Видео хадгалалт | `R2_*` |
-| Cloudinary | Poster/backdrop upload | `CLOUDINARY_*` |
+| Cloudflare R2 | Видео + poster/backdrop хадгалалт | `R2_*` |
 | Gemini | AI facts / suggestions | `GEMINI_API_KEY`, `ALLOWED_ORIGINS` |
 | Upstash Redis (заавал биш) | Rate limit-ийг instance хооронд хуваалцах | `UPSTASH_REDIS_REST_URL/TOKEN` |
 | Admin / Auth | Supabase Auth, `profiles.role='admin'` | `supabase/migrations_002_auth_premium.sql` |

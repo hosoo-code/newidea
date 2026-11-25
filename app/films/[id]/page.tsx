@@ -79,7 +79,7 @@ export default async function FilmDetailPage({ params }: Props) {
             </Link>
           </div>
         ) : playUrl ? (
-          <LocalPlayer url={playUrl} title={movie.title} poster={movie.backdrop_url} movieId={movie.id} />
+          <LocalPlayer url={playUrl} title={movie.title} poster={movie.backdrop_url} movieId={movie.id} viewerId={profile?.id} />
         ) : (
           <p className="text-gray-400 text-center py-10">Видео удахгүй нэмэгдэнэ.</p>
         )}

@@ -80,6 +80,7 @@ export default function MovieForm({ movie }: { movie?: LocalMovie }) {
     setBusy(key);
     const body = new FormData();
     body.append("file", file);
+    body.append("kind", key === "backdrop_url" ? "backdrop" : "poster");
     const res = await fetch("/api/admin/upload", { method: "POST", body });
     const json = await res.json();
     setBusy(null);
@@ -184,7 +185,7 @@ export default function MovieForm({ movie }: { movie?: LocalMovie }) {
             <input className={field} value={f[k]} onChange={(e) => set(k, e.target.value)} placeholder="https://..." />
             <label className="shrink-0 cursor-pointer rounded-lg bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 text-sm">
               {busy === k ? "..." : "Upload"}
-              <input type="file" accept="image/*" hidden onChange={(e) => e.target.files?.[0] && upload(e.target.files[0], k)} />
+              <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" hidden onChange={(e) => e.target.files?.[0] && upload(e.target.files[0], k)} />
             </label>
           </div>
           {f[k] && (

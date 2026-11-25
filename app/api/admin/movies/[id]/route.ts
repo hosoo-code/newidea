@@ -17,7 +17,7 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
   try {
     const input = sanitizeMovieInput(await req.json());
     const db = supabaseAdmin();
-    const { data: prev } = await db.from("movies").select("video_url").eq("id", Number(id)).maybeSingle();
+    const { data: prev } = await db.from("movies").select("video_url,poster_url,backdrop_url").eq("id", Number(id)).maybeSingle();
     const { data, error } = await db
       .from("movies")
       .update(input)
@@ -29,6 +29,9 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
     if (prev?.video_url && prev.video_url !== input.video_url) {
       await deleteR2ObjectByUrl(prev.video_url);
     }
+    // Poster / backdrop солигдсон бол хуучин R2 зургийг устгана (TMDB г.м гадны линкэнд хүрэхгүй)
+    if (prev?.poster_url && prev.poster_url !== input.poster_url) await deleteR2ObjectByUrl(prev.poster_url);
+    if (prev?.backdrop_url && prev.backdrop_url !== input.backdrop_url) await deleteR2ObjectByUrl(prev.backdrop_url);
     refresh(id);
     return NextResponse.json(data);
   } catch (e) {
@@ -42,10 +45,12 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
 export async function DELETE(_req: NextRequest, { params }: Ctx) {
   const { id } = await params;
   const db = supabaseAdmin();
-  const { data: existing } = await db.from("movies").select("video_url").eq("id", Number(id)).maybeSingle();
+  const { data: existing } = await db.from("movies").select("video_url,poster_url,backdrop_url").eq("id", Number(id)).maybeSingle();
   const { error } = await db.from("movies").delete().eq("id", Number(id));
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   await deleteR2ObjectByUrl(existing?.video_url);
+  await deleteR2ObjectByUrl(existing?.poster_url);
+  await deleteR2ObjectByUrl(existing?.backdrop_url);
   refresh(id);
   return NextResponse.json({ ok: true });
 }
