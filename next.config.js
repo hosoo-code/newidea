@@ -1,0 +1,45 @@
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+    images: {
+        remotePatterns: [
+          {
+            protocol: 'https',
+            hostname: 'image.tmdb.org',
+            port: '',
+            pathname: '/**',
+          },
+          {
+            protocol: 'https',
+            hostname: 'imgur.com',
+            port: '',
+            pathname: '/**',
+          },
+          {
+            protocol: 'https',
+            hostname: 'i.imgur.com',
+            port: '',
+            pathname: '/**',
+          },
+          {
+            protocol: 'https',
+            hostname: 'arc.io',
+            port: '',
+            pathname: '/**',
+          },
+        ],
+      },
+      webpack: (config, { dev }) => {
+        // Optimize webpack cache for better stability
+        if (dev) {
+          config.cache = {
+            type: 'filesystem',
+            buildDependencies: {
+              config: [__filename],
+            },
+          };
+        }
+        return config;
+      },
+}
+
+module.exports = nextConfig
