@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { randomUUID } from "crypto";
-import { r2, R2_BUCKET } from "@/lib/r2";
+import { r2, R2_IMAGES_BUCKET } from "@/lib/r2";
 
 // Poster / backdrop зургийг Cloudflare R2 руу хадгална.
 // /api/admin/** нь middleware-ээр admin эрхээр хамгаалагдсан.
@@ -15,7 +15,7 @@ const MAX_BYTES = 10 * 1024 * 1024;
 
 export async function POST(req: NextRequest) {
   const publicBase = (process.env.R2_IMAGES_PUBLIC_URL || process.env.R2_PUBLIC_URL)?.replace(/\/$/, "");
-  if (!process.env.R2_ACCOUNT_ID || !process.env.R2_BUCKET || !publicBase) {
+  if (!process.env.R2_ACCOUNT_ID || !R2_IMAGES_BUCKET() || !publicBase) {
     return NextResponse.json({ error: "R2 тохируулаагүй байна" }, { status: 500 });
   }
 
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
   try {
     await r2().send(
       new PutObjectCommand({
-        Bucket: R2_BUCKET(),
+        Bucket: R2_IMAGES_BUCKET(),
         Key: key,
         Body: Buffer.from(await file.arrayBuffer()),
         ContentType: file.type,

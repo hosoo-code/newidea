@@ -13,22 +13,25 @@ export const r2 = () =>
     },
   });
 
-export const R2_BUCKET = () => process.env.R2_BUCKET!;
+export const R2_BUCKET = () => process.env.R2_BUCKET!; // видео
+// Poster/backdrop зургийн тусдаа bucket. Тохируулаагүй бол видеоны bucket-тэй ижил.
+export const R2_IMAGES_BUCKET = () => process.env.R2_IMAGES_BUCKET || process.env.R2_BUCKET!;
 export const r2PublicUrl = (key: string) =>
   `${process.env.R2_PUBLIC_URL!.replace(/\/$/, "")}/${key}`;
-
-// Poster/backdrop-ийн public base (public bucket / custom domain). Тохируулаагүй бол R2_PUBLIC_URL.
-const imagesBase = () => (process.env.R2_IMAGES_PUBLIC_URL || process.env.R2_PUBLIC_URL)?.replace(/\/$/, "");
 
 // url манай R2 дээр байвал object-ийг устгана (бусад линкэнд хүрэхгүй). Видео болон зураг хоёуланд ажиллана.
 export async function deleteR2ObjectByUrl(url?: string | null) {
   if (!url) return;
-  const bases = [process.env.R2_PUBLIC_URL?.replace(/\/$/, ""), imagesBase()].filter(Boolean) as string[];
-  const base = bases.find((b) => url.startsWith(`${b}/`));
-  if (!base) return;
-  const key = decodeURIComponent(url.slice(base.length + 1).split("?")[0]);
+  const strip = (v?: string) => v?.replace(/\/$/, "");
+  const targets = [
+    { base: strip(process.env.R2_IMAGES_PUBLIC_URL), bucket: R2_IMAGES_BUCKET() }, // зураг
+    { base: strip(process.env.R2_PUBLIC_URL), bucket: R2_BUCKET() }, // видео
+  ].filter((t): t is { base: string; bucket: string } => !!t.base);
+  const hit = targets.find((t) => url.startsWith(`${t.base}/`));
+  if (!hit) return;
+  const key = decodeURIComponent(url.slice(hit.base.length + 1).split("?")[0]);
   try {
-    await r2().send(new DeleteObjectCommand({ Bucket: R2_BUCKET(), Key: key }));
+    await r2().send(new DeleteObjectCommand({ Bucket: hit.bucket, Key: key }));
   } catch (e) {
     console.error("[r2] delete failed:", e);
   }
