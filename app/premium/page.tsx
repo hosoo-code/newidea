@@ -10,9 +10,8 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Premium | Kino Mangas" };
 
 export default async function PremiumPage() {
-  const profile = await getCurrentProfile();
+  const [profile, plans] = await Promise.all([getCurrentProfile(), getPlans()]);
   const active = isPremium(profile);
-  const plans = await getPlans();
   const isAdmin = profile?.role === "admin";
   const until = profile?.premium_until ?? null;
 

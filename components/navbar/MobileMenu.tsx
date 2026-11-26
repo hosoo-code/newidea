@@ -3,8 +3,10 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import LogoutButton from "@/components/admin/LogoutButton";
+import { useMe } from "@/lib/useMe";
 
-const MobileMenu = ({ loggedIn = false, isAdmin = false }: { loggedIn?: boolean; isAdmin?: boolean }) => {
+const MobileMenu = () => {
+  const { loggedIn, isAdmin } = useMe();
   const [isOpen, setIsOpen] = useState(false);
   const toggleNavbar = () => setIsOpen((prev) => !prev);
 

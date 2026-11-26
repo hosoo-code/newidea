@@ -4,10 +4,8 @@ import Logo from "./Logo";
 import AiSuggestionLink from "./AiSuggestionLink";
 import MobileMenu from "./MobileMenu";
 import AccountLink from "./AccountLink";
-import { getCurrentProfile } from "@/lib/auth";
 
-const Header = async () => {
-  const profile = await getCurrentProfile().catch(() => null);
+const Header = () => {
   return (
     <nav className="w-full fixed top-0 z-[100] bg-black/80 backdrop-blur-md border-b border-gray-800/50 shadow-2xl shadow-black/20">
       <div className="max-w-7xl flex items-center justify-between mx-auto px-4 sm:px-6 lg:px-8 h-16">
@@ -51,7 +49,7 @@ const Header = async () => {
           <AccountLink />
 
           {/* Mobile Hamburger Button */}
-          <MobileMenu loggedIn={!!profile} isAdmin={profile?.role === "admin"} />
+          <MobileMenu />
         </div>
       </div>
     </nav>

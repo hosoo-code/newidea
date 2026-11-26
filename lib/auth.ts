@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { supabaseServer } from "./supabaseServer";
 
 export interface Profile {
@@ -11,7 +12,8 @@ export const isPremium = (p: Pick<Profile, "role" | "premium_until"> | null) =>
   !!p && (p.role === "admin" || (!!p.premium_until && new Date(p.premium_until) > new Date()));
 
 // Нэвтэрсэн хэрэглэгч + профайл (getUser нь токеныг Supabase-ээр баталгаажуулдаг, getSession шиг cookie-д итгэдэггүй)
-export async function getCurrentProfile(): Promise<Profile | null> {
+// cache(): нэг хүсэлтэд олон удаа дуудсан ч Supabase руу нэг л удаа хандана
+export const getCurrentProfile = cache(async (): Promise<Profile | null> => {
   const sb = await supabaseServer();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return null;
@@ -21,7 +23,7 @@ export async function getCurrentProfile(): Promise<Profile | null> {
     .eq("id", user.id)
     .maybeSingle();
   return (data as Profile) ?? { id: user.id, email: user.email ?? null, role: "user", premium_until: null };
-}
+});
 
 export async function requireAdmin(): Promise<Profile | null> {
   const p = await getCurrentProfile();

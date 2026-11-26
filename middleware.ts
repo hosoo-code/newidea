@@ -24,7 +24,9 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const isAdminArea = pathname.startsWith("/admin") || pathname.startsWith("/api/admin");
   if (!isAdminArea) {
-    await sb.auth.getUser(); // session шинэчлэх
+    // Session cookie шинэчлэх. getSession нь токен хугацаа дуусаагүй бол сүлжээний дуудлага хийдэггүй тул навигацийг удаашруулахгүй.
+    // (Бодит эрхийн шалгалтыг getCurrentProfile/admin хэсэг getUser-ээр хийдэг.)
+    await sb.auth.getSession();
     return res;
   }
 
