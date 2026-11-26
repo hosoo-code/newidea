@@ -6,6 +6,9 @@ const accountId = process.env.R2_ACCOUNT_ID!;
 export const r2 = () =>
   new S3Client({
     region: "auto",
+    // R2 нь шинэ SDK-ийн автомат checksum-ийг (presigned PUT дээр) хүлээж авдаггүй тул зөвхөн шаардлагатай үед тооцно
+    requestChecksumCalculation: "WHEN_REQUIRED",
+    responseChecksumValidation: "WHEN_REQUIRED",
     endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
     credentials: {
       accessKeyId: process.env.R2_ACCESS_KEY_ID!,

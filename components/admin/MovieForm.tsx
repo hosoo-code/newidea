@@ -98,17 +98,24 @@ export default function MovieForm({ movie }: { movie?: LocalMovie }) {
     if (!res.ok) return toast.error(json.error ?? "Алдаа гарлаа");
 
     setProgress(0);
-    const ok = await new Promise<boolean>((resolve) => {
+    // 0 = сүлжээ/CORS-ээр хаагдсан, бусад нь R2-ийн HTTP статус
+    const status = await new Promise<number>((resolve) => {
       const xhr = new XMLHttpRequest();
       xhr.open("PUT", json.uploadUrl);
       xhr.setRequestHeader("Content-Type", file.type);
       xhr.upload.onprogress = (e) => e.lengthComputable && setProgress(Math.round((e.loaded / e.total) * 100));
-      xhr.onload = () => resolve(xhr.status >= 200 && xhr.status < 300);
-      xhr.onerror = () => resolve(false);
+      xhr.onload = () => resolve(xhr.status);
+      xhr.onerror = () => resolve(0);
       xhr.send(file);
     });
     setProgress(null);
-    if (!ok) return toast.error("R2 руу upload амжилтгүй (bucket CORS-ийг шалгана уу)");
+    if (status < 200 || status >= 300) {
+      return toast.error(
+        status === 0
+          ? "R2 руу холбогдож чадсангүй (bucket CORS эсвэл сүлжээг шалгана уу)"
+          : `R2 руу upload амжилтгүй (HTTP ${status}). Token-ий эрх, bucket-ийн нэрийг шалгана уу`
+      );
+    }
     set("video_url", json.publicUrl);
     toast.success("Видео R2 руу орлоо – “Хадгалах” дарна уу");
   }
