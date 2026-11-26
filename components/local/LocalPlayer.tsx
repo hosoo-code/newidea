@@ -105,7 +105,7 @@ export default function LocalPlayer({
     if (!box) return;
     if (document.fullscreenElement) document.exitFullscreen?.();
     else if (box.requestFullscreen) box.requestFullscreen().catch(() => {});
-    else (videoRef.current as unknown as { webkitEnterFullscreen?: () => void } | null)?.webkitEnterFullscreen?.(); // iOS Safari (watermark харагдахгүй)
+    else (videoRef.current as (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null)?.webkitEnterFullscreen?.(); // iOS Safari (watermark харагдахгүй)
   };
 
   // Үргэлжлүүлж үзэх: байрлалыг localStorage-д хадгална

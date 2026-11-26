@@ -21,7 +21,9 @@ export default async function AdminPage() {
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <h1 className="text-2xl font-bold text-white">Кинонууд ({movies.length})</h1>
           <div className="flex flex-wrap items-center gap-4">
-            <Link href="/admin/plans" className="text-sm text-yellow-400 hover:text-yellow-300">Premium үнэ</Link>
+            <Link href="/admin/plans" className="rounded-lg border border-theme-primary text-theme-primary font-semibold px-4 py-2 hover:bg-theme-primary/10">
+              💳 Premium үнэ
+            </Link>
             <LogoutButton />
             <Link href="/admin/movies/new" className="rounded-lg bg-theme-primary text-black font-semibold px-4 py-2">
               + Кино нэмэх
