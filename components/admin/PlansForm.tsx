@@ -3,7 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 type Row = { id: string; label: string; days: number; amount: number; active: boolean };
-const TITLES: Record<string, string> = { month: "Сарын эрх", quarter: "Улирлын эрх", year: "Жилийн эрх" };
+const TITLES: Record<string, string> = { month: "Сарын эрх", quarter: "Улирлын эрх", half: "Хагас жилийн эрх", year: "Жилийн эрх" };
 
 export default function PlansForm({ initial }: { initial: Row[] }) {
   const [rows, setRows] = useState<Row[]>(initial);

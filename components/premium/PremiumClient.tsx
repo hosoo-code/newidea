@@ -150,7 +150,7 @@ export default function PremiumClient({ plans }: { plans: Plan[] }) {
 
   return (
     <>
-      <div className={`grid grid-cols-1 gap-3 sm:gap-4 ${plans.length >= 3 ? "sm:grid-cols-3" : plans.length === 2 ? "sm:grid-cols-2" : ""}`}>
+      <div className={`grid grid-cols-1 gap-3 sm:gap-4 ${plans.length >= 4 ? "sm:grid-cols-2" : plans.length === 3 ? "sm:grid-cols-3" : plans.length === 2 ? "sm:grid-cols-2" : ""}`}>
         {plans.map((p) => {
           const perMonth = Math.round((p.amount / p.days) * 30);
           const best = plans.length > 1 && p.id === bestId;

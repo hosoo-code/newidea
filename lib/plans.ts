@@ -2,7 +2,7 @@ import { supabaseAdmin } from "./supabase";
 
 // Premium багцууд. Үнэ/хоногийг ЗӨВХӨН сервер тодорхойлно (клиентээс ирсэн дүнд хэзээ ч итгэхгүй).
 // Admin нь /admin/plans хуудаснаас засна (public.plans хүснэгт). Хүснэгт байхгүй/хоосон бол DEFAULT_PLANS ашиглана.
-export const PLAN_IDS = ["month", "quarter", "year"] as const;
+export const PLAN_IDS = ["month", "quarter", "half", "year"] as const;
 export type PlanId = (typeof PLAN_IDS)[number];
 
 export type Plan = {
@@ -16,6 +16,7 @@ export type Plan = {
 export const DEFAULT_PLANS: Record<PlanId, Plan> = {
   month: { id: "month", label: "1 сар", days: 30, amount: Number(process.env.PREMIUM_PRICE_MONTH) || 9900, active: true },
   quarter: { id: "quarter", label: "3 сар", days: 90, amount: Number(process.env.PREMIUM_PRICE_QUARTER) || 26900, active: true },
+  half: { id: "half", label: "6 сар", days: 180, amount: Number(process.env.PREMIUM_PRICE_HALF) || 27000, active: true },
   year: { id: "year", label: "1 жил", days: 365, amount: Number(process.env.PREMIUM_PRICE_YEAR) || 99000, active: true },
 };
 
