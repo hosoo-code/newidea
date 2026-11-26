@@ -1,6 +1,5 @@
 import React from "react";
 import Link from "next/link";
-import { AiFillGithub } from "react-icons/ai";
 import { Heart } from "lucide-react";
 import Logo from "../navbar/Logo";
 
@@ -49,23 +48,6 @@ const Footer = () => {
               />
               <span>© {new Date().getFullYear()} Kino Mangas</span>
             </div>
-          </div>
-
-          {/* Social Links */}
-          <div className="flex flex-col items-center md:items-end">
-            <Link
-              href="https://github.com/alanvarghesepaul22/CINEWORLD-NextJS"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group"
-            >
-              <div className="p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/50 backdrop-blur-sm border border-gray-700/50 hover:border-gray-600/70 transition-all duration-300 hover:scale-110">
-                <AiFillGithub className="text-2xl text-gray-300 group-hover:text-white transition-colors duration-200" />
-              </div>
-            </Link>
-            <p className="text-gray-500 text-xs mt-2 text-center md:text-right">
-              Open Source Project
-            </p>
           </div>
         </div>
 
