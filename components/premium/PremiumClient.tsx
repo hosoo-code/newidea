@@ -61,33 +61,65 @@ function extract(next: unknown): Pick<Pay, "qrText" | "qrImage" | "links"> {
 export default function PremiumClient({ plans }: { plans: Plan[] }) {
   const [busy, setBusy] = useState<string | null>(null);
   const [pay, setPay] = useState<Pay | null>(null);
+  const [selected, setSelected] = useState<Plan | null>(null);
   const [showAll, setShowAll] = useState(false);
   const timer = useRef<ReturnType<typeof setInterval>>();
   const router = useRouter();
 
   useEffect(() => () => clearInterval(timer.current), []);
 
+  const check = async (intentId: string) => {
+    try {
+      const r = await fetch(`/api/payments/${intentId}`, { cache: "no-store" });
+      const { status } = await r.json();
+      if (status === "succeeded") {
+        clearInterval(timer.current);
+        toast.success("Төлбөр амжилттай! Premium идэвхжлээ 🎉");
+        setPay(null);
+        setSelected(null);
+        router.refresh();
+      } else if (status === "failed") {
+        clearInterval(timer.current);
+        toast.error("Төлбөр амжилтгүй боллоо");
+        setPay(null);
+        setSelected(null);
+      }
+    } catch {}
+  };
+
   function poll(intentId: string) {
     clearInterval(timer.current);
     let tries = 0;
-    timer.current = setInterval(async () => {
+    timer.current = setInterval(() => {
       tries++;
-      try {
-        const r = await fetch(`/api/payments/${intentId}`, { cache: "no-store" });
-        const { status } = await r.json();
-        if (status === "succeeded") {
-          clearInterval(timer.current);
-          toast.success("Төлбөр амжилттай! Premium идэвхжлээ 🎉");
-          setPay(null);
-          router.refresh();
-        } else if (status === "failed") {
-          clearInterval(timer.current);
-          toast.error("Төлбөр амжилтгүй боллоо");
-          setPay(null);
-        }
-      } catch {}
+      check(intentId);
       if (tries > 150) clearInterval(timer.current); // ~10 мин
     }, 4000);
+  }
+
+  // Банкны аппаас буцаж ирэхэд төлбөрийг шууд шалгана
+  useEffect(() => {
+    if (!pay) return;
+    const onVisible = () => document.visibilityState === "visible" && check(pay.intentId);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pay]);
+
+  // Төлбөрийн цонх нээлттэй үед ар талын scroll-ийг түгжинэ
+  useEffect(() => {
+    if (!pay) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [pay]);
+
+  function closePay() {
+    clearInterval(timer.current);
+    setPay(null);
+    setSelected(null);
   }
 
   async function buy(plan: string) {
@@ -102,6 +134,7 @@ export default function PremiumClient({ plans }: { plans: Plan[] }) {
       if (res.status === 401) return void (location.href = "/login?next=/premium");
       if (!res.ok) throw new Error(json.error ?? "Алдаа гарлаа");
       setShowAll(false);
+      setSelected(plans.find((x) => x.id === plan) ?? null);
       setPay({ intentId: json.intentId, raw: json.nextAction, ...extract(json.nextAction) });
       poll(json.intentId);
     } catch (e) {
@@ -149,55 +182,95 @@ export default function PremiumClient({ plans }: { plans: Plan[] }) {
       </div>
 
       {pay && (
-        <div className="glass-container mt-6 text-center space-y-4">
-          <h3 className="text-white font-semibold">QPay-аар төлнө үү</h3>
-          {pay.qrImage ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={pay.qrImage} alt="QPay QR" className="mx-auto w-full max-w-[14rem] aspect-square bg-white p-2 rounded-lg" />
-          ) : pay.qrText ? (
-            <div className="mx-auto bg-white p-3 rounded-lg inline-block">
-              <QRCodeSVG value={pay.qrText} size={208} />
-            </div>
-          ) : null}
-          {webLink && (
-            <a
-              href={webLink.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block rounded-lg bg-theme-primary text-black font-semibold px-4 py-2 text-sm"
-            >
-              Төлбөрийн хуудас нээх
-            </a>
-          )}
-          {appLinks.length > 0 && (
-            <div className="space-y-2">
-              <p className="text-sm text-gray-300">Банкны аппаар төлөх (утсан дээр)</p>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {(showAll ? appLinks : appLinks.slice(0, 8)).map((l) => (
-                  <a
-                    key={l.href}
-                    href={l.href}
-                    className="flex flex-col items-center gap-1 rounded-lg bg-gray-800 border border-gray-700 px-2 py-2 text-xs text-white hover:border-theme-primary"
-                  >
-                    {l.logo && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={l.logo} alt="" className="w-8 h-8 rounded" loading="lazy" />
-                    )}
-                    <span className="line-clamp-2">{l.label || "Банкны апп"}</span>
-                  </a>
-                ))}
+        <div
+          className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          onClick={(e) => e.target === e.currentTarget && closePay()}
+        >
+          <div className="w-full sm:max-w-md max-h-[92dvh] overflow-y-auto overscroll-contain rounded-t-2xl sm:rounded-2xl bg-gray-900 border border-gray-800 p-4 sm:p-6 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            {/* Сонгосон багц */}
+            <div className="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <p className="text-xs text-gray-400">Сонгосон багц</p>
+                <h3 className="text-lg font-bold text-white">
+                  Premium · {selected?.label}
+                  {selected && <span className="ml-2 text-sm font-normal text-gray-400">({selected.days} хоног)</span>}
+                </h3>
+                {selected && <p className="text-2xl font-bold text-theme-primary">{selected.amount.toLocaleString("en-US")}₮</p>}
               </div>
-              {appLinks.length > 8 && (
-                <button type="button" onClick={() => setShowAll((x) => !x)} className="text-xs text-theme-primary underline">
-                  {showAll ? "Цөөн харуулах" : `Бусад банк (${appLinks.length - 8})`}
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={closePay}
+                aria-label="Хаах"
+                className="shrink-0 rounded-lg bg-gray-800 px-3 py-1.5 text-gray-300 hover:text-white"
+              >
+                ✕
+              </button>
             </div>
-          )}
-          {!pay.qrImage && !pay.qrText && !webLink && appLinks.length === 0 && (
-            <p className="text-gray-400 text-sm">Төлбөрийн заавар хүлээж авсангүй. Wire dashboard дээр QPay идэвхтэй эсэхийг шалгана уу.</p>
-          )}
-          <p className="text-xs text-gray-400">Төлбөр баталгаажихыг автоматаар хүлээж байна…</p>
+
+            <div className="flex flex-col gap-5 text-center">
+              {appLinks.length > 0 && (
+                <div className="order-1 sm:order-2 space-y-2">
+                  <p className="text-sm text-gray-300">Банкны аппаа сонгож төлнө үү</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {(showAll ? appLinks : appLinks.slice(0, 9)).map((l) => (
+                      <a
+                        key={l.href}
+                        href={l.href}
+                        className="flex flex-col items-center gap-1 rounded-lg bg-gray-800 border border-gray-700 px-2 py-3 text-xs text-white hover:border-theme-primary active:scale-95"
+                      >
+                        {l.logo && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={l.logo} alt="" className="w-10 h-10 rounded-lg" loading="lazy" />
+                        )}
+                        <span className="line-clamp-2">{l.label || "Банкны апп"}</span>
+                      </a>
+                    ))}
+                  </div>
+                  {appLinks.length > 9 && (
+                    <button type="button" onClick={() => setShowAll((x) => !x)} className="text-xs text-theme-primary underline">
+                      {showAll ? "Цөөн харуулах" : `Бусад банк (${appLinks.length - 9})`}
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {(pay.qrImage || pay.qrText) && (
+                <div className="order-2 sm:order-1 space-y-2">
+                  <p className="text-sm text-gray-300">
+                    <span className="sm:hidden">Эсвэл өөр төхөөрөмжөөс QR уншуулна уу</span>
+                    <span className="hidden sm:inline">QPay QR уншуулна уу</span>
+                  </p>
+                  {pay.qrImage ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={pay.qrImage} alt="QPay QR" className="mx-auto w-full max-w-[14rem] aspect-square bg-white p-2 rounded-lg" />
+                  ) : (
+                    <div className="mx-auto bg-white p-3 rounded-lg inline-block">
+                      <QRCodeSVG value={pay.qrText!} size={208} />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {webLink && (
+                <a
+                  href={webLink.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="order-3 inline-block rounded-lg bg-theme-primary text-black font-semibold px-4 py-2.5 text-sm"
+                >
+                  Төлбөрийн хуудас нээх
+                </a>
+              )}
+
+              {!pay.qrImage && !pay.qrText && !webLink && appLinks.length === 0 && (
+                <p className="text-gray-400 text-sm">Төлбөрийн заавар хүлээж авсангүй. Wire dashboard дээр QPay идэвхтэй эсэхийг шалгана уу.</p>
+              )}
+
+              <p className="order-4 text-xs text-gray-400">Төлбөр баталгаажихыг автоматаар хүлээж байна…</p>
+            </div>
+          </div>
         </div>
       )}
     </>
