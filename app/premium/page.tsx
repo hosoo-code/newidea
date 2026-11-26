@@ -55,7 +55,7 @@ export default async function PremiumPage() {
                 <div className="space-y-1">
                   <dt className="text-gray-400">ID</dt>
                   <dd className="flex items-center gap-2">
-                    <code className="flex-1 min-w-0 text-xs text-white break-all">{profile.id}</code>
+                    <code className="flex-1 min-w-0 text-sm text-white tracking-wider">{profile.id.slice(0, 8).toUpperCase()}</code>
                     <CopyId value={profile.id} />
                   </dd>
                 </div>
