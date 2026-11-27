@@ -58,11 +58,15 @@ const Filter = ({
       <Select value={displayValue} onValueChange={handleValueChange}>
         <SelectTrigger
           id={selectId}
-          className="w-full bg-transparent text-primary border-2 border-primary rounded-full text-sm"
+          className={`w-full rounded-xl border px-4 text-sm font-medium shadow-none transition-colors data-[size=default]:h-11 focus-visible:ring-2 focus-visible:ring-theme-primary/40 data-[state=open]:border-theme-primary [&_svg]:!text-gray-400 ${
+            value !== ""
+              ? "border-theme-primary/60 bg-theme-primary/10 text-theme-primary"
+              : "border-gray-700 bg-gray-900/70 text-white hover:border-gray-500"
+          }`}
         >
           <SelectValue placeholder={label} />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="max-h-72 rounded-xl border-gray-700 bg-gray-900 text-white">
           {includeReset && <SelectItem value="__reset__">{resetLabel}</SelectItem>}
           {options.map((option) => (
             <SelectItem key={option.value} value={option.value}>

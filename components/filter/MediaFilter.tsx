@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Filter from "./Filter";
-import { Label } from "@/components/ui/label";
 import { TMDBGenre } from "@/lib/types";
 
 interface MediaFiltersData {
@@ -101,97 +100,69 @@ const MediaFilter = ({
     return { value: year.toString(), label: year.toString() };
   });
 
+  const hasActive = filters.genre !== "" || filters.year !== "";
+  const resetAll = () => {
+    const next = { ...filters, genre: "", year: "" };
+    setFilters(next);
+    onFiltersChange(next);
+  };
+
+  const fieldLabel = "mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-gray-400";
+
   return (
     <div className="container mx-auto px-4 mb-8">
-      <div className="glass-container">
-        {/* Mobile Layout */}
-        <div className="block md:hidden">
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <>
-              <Label className="filter-label-xs mb-1">Category</Label>
-              <Filter
-                label="Category"
-                options={categoryOptions}
-                value={filters.category}
-                onChange={(value) => handleFilterChange("category", value)}
-                includeReset={false}
-              />
-            </>
-            <>
-              <Label className="filter-label-xs mb-1">Genre</Label>
-              <Filter
-                label="Genre"
-                options={genreOptions}
-                value={filters.genre}
-                onChange={(value) => handleFilterChange("genre", value)}
-                includeReset={true}
-                resetLabel="All"
-              />
-            </>
-            <>
-              <Label className="filter-label-xs mb-1">Year</Label>
-              <Filter
-                label="Year"
-                options={yearOptions}
-                value={filters.year}
-                onChange={(value) => handleFilterChange("year", value)}
-                includeReset={true}
-                resetLabel="Any"
-              />
-            </>
-            <>
-              <Label className="filter-label-xs mb-1">Sort</Label>
-              <Filter
-                label="Sort"
-                options={sortOptions}
-                value={filters.sortBy}
-                onChange={(value) => handleFilterChange("sortBy", value)}
-                includeReset={false}
-              />
-            </>
-          </div>
+      <div className="space-y-5 rounded-2xl border border-gray-800 bg-gray-900/50 p-4 shadow-xl shadow-black/20 backdrop-blur-sm sm:p-5">
+        {/* Category: товчлуурууд (гар утсан дээр хажуу тийш гүйлгэнэ) */}
+        <div
+          role="tablist"
+          aria-label="Category"
+          className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {categoryOptions.map((c) => {
+            const active = filters.category === c.value;
+            return (
+              <button
+                key={c.value}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => handleFilterChange("category", c.value)}
+                className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-all active:scale-95 ${
+                  active
+                    ? "bg-theme-primary text-black font-semibold shadow-[0_0_14px_rgba(253,228,2,0.25)]"
+                    : "border border-gray-700 bg-gray-800/60 text-gray-300 hover:border-gray-500 hover:text-white"
+                }`}
+              >
+                {c.label}
+              </button>
+            );
+          })}
         </div>
 
-        {/* Desktop Layout */}
-        <div className="hidden md:flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Label className="filter-label-sm whitespace-nowrap">
-              Category:
-            </Label>
-            <Filter
-              label="Category"
-              options={categoryOptions}
-              value={filters.category}
-              onChange={(value) => handleFilterChange("category", value)}
-              includeReset={false}
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Label className="filter-label-sm whitespace-nowrap">Genre:</Label>
+        {/* Genre / Year / Sort */}
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end">
+          <div>
+            <span className={fieldLabel}>Genre</span>
             <Filter
               label="Genre"
               options={genreOptions}
               value={filters.genre}
               onChange={(value) => handleFilterChange("genre", value)}
-              includeReset={true}
-              resetLabel="All"
+              resetLabel="All genres"
             />
           </div>
-          <div className="flex items-center gap-2">
-            <Label className="filter-label-sm whitespace-nowrap">Year:</Label>
+          <div>
+            <span className={fieldLabel}>Year</span>
             <Filter
               label="Year"
               options={yearOptions}
               value={filters.year}
               onChange={(value) => handleFilterChange("year", value)}
-              includeReset={true}
-              resetLabel="Any"
+              resetLabel="Any year"
             />
           </div>
-          <div className="flex items-center gap-2 ml-auto">
-            <Label className="filter-label-sm whitespace-nowrap">
-              Sort by:
-            </Label>
+          <div className="col-span-2 md:col-span-1">
+            <span className={fieldLabel}>Sort by</span>
             <Filter
               label="Sort"
               options={sortOptions}
@@ -200,6 +171,15 @@ const MediaFilter = ({
               includeReset={false}
             />
           </div>
+          {hasActive && (
+            <button
+              type="button"
+              onClick={resetAll}
+              className="col-span-2 h-11 rounded-xl border border-gray-700 px-4 text-sm font-medium text-gray-300 transition-colors hover:border-red-400/60 hover:text-red-300 active:scale-95 md:col-span-1"
+            >
+              ✕ Reset
+            </button>
+          )}
         </div>
       </div>
     </div>
