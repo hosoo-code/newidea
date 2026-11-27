@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { LocalMovie } from "@/lib/movies";
 
+// Гар утсан дээр hover байхгүй тул нэр/он/үнэлгээ үргэлж харагдана.
 export default function LocalMovieCard({
   movie,
   variant = "grid",
@@ -8,33 +9,29 @@ export default function LocalMovieCard({
   movie: LocalMovie;
   variant?: "horizontal" | "grid";
 }) {
-  const width = variant === "horizontal" ? "w-[160px] sm:w-[180px] md:w-[200px]" : "w-full";
+  const width = variant === "horizontal" ? "w-[132px] sm:w-[160px] md:w-[190px]" : "w-full";
+  const rating = Number(movie.rating ?? 0);
   return (
-    <Link
-      href={`/films/${movie.id}`}
-      title={movie.title}
-      className={`group relative block ${width} rounded-xl overflow-hidden bg-gradient-to-br from-gray-900/50 to-gray-800/30 border border-gray-700/50 hover:border-gray-600/80 hover:shadow-2xl transition-all duration-500 hover:-translate-y-1`}
-    >
-      <div className="aspect-[2/3] w-full relative overflow-hidden">
+    <Link href={`/films/${movie.id}`} title={movie.title} className={`group block ${width} active:scale-[0.97] transition-transform`}>
+      <div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl bg-gray-800 ring-1 ring-white/10 group-hover:ring-theme-primary/60 transition-all">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={movie.poster_url || "https://i.imgur.com/wjVuAGb.png"}
           alt={`${movie.title} poster`}
           loading="lazy"
-          className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        {!!movie.rating && movie.rating > 0 && (
-          <div className="absolute top-3 left-3 bg-black/80 px-2 py-1 rounded-lg border border-yellow-500/30 opacity-0 group-hover:opacity-100 transition-opacity">
-            <span className="text-yellow-400 text-xs font-bold">⭐ {Number(movie.rating).toFixed(1)}</span>
-          </div>
+        {rating > 0 && (
+          <span className="absolute top-2 left-2 rounded-md bg-black/75 px-1.5 py-0.5 text-[11px] font-bold text-yellow-400 backdrop-blur-sm">
+            ★ {rating.toFixed(1)}
+          </span>
         )}
-        <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="bg-black/80 px-2 py-1 rounded-lg border border-gray-600/30">
-            <h3 className="text-white text-xs font-semibold line-clamp-2 leading-tight">{movie.title}</h3>
-          </div>
-        </div>
       </div>
+      <h3 className="mt-2 line-clamp-1 text-sm font-semibold text-white">{movie.title}</h3>
+      <p className="text-xs text-gray-400">
+        {movie.release_year ?? "—"}
+        {movie.genres?.[0] ? ` · ${movie.genres[0]}` : ""}
+      </p>
     </Link>
   );
 }
