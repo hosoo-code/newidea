@@ -1,18 +1,18 @@
 import Link from "next/link";
 import React from "react";
 
-const Logo = () => {
+// Kino Mangas logo (public/logo.png – ил тод дэвсгэртэй). size: header-д "sm", footer-д "lg".
+const Logo = ({ size = "sm" }: { size?: "sm" | "lg" }) => {
   return (
-    <Link
-      href="/"
-      className="flex justify-center items-center w-32 md:w-40 text-sm md:text-base my-5 font-extrabold text-center"
-    >
-      <div className="bg-primary py-1 px-2 border border-primary ">
-        <p>KINO</p>
-      </div>
-      <div className="border border-primary py-1 text-primary px-2 ">
-        <p>MANGAS</p>
-      </div>
+    <Link href="/" aria-label="Kino Mangas" className="flex items-center justify-center">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/logo.png"
+        alt="Kino Mangas"
+        width={616}
+        height={800}
+        className={size === "lg" ? "h-28 w-auto" : "h-14 w-auto py-0.5"}
+      />
     </Link>
   );
 };

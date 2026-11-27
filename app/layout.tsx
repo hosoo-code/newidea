@@ -11,6 +11,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata = {
   title: "Kino Mangas",
   description: "Кино Мангас",
+  icons: { icon: "/icon.png", apple: "/apple-icon.png" },
 };
 
 interface RootLayoutProps {

@@ -12,7 +12,7 @@ const Footer = () => {
           {/* Logo Section */}
           <div className="flex flex-col items-center md:items-start">
             <div className="transform scale-75">
-              <Logo />
+              <Logo size="lg" />
             </div>
             <p className="text-gray-400 text-xs mt-2 text-center md:text-left">
               Your ultimate movie & series destination
