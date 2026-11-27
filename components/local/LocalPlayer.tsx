@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Play, Pause, RotateCcw, RotateCw, Volume2, VolumeX, Maximize, Minimize, Loader2 } from "lucide-react";
 
 // ⚠️ Эдгээр нь зөвхөн саад (deterrent). Утасны камер, гадны төхөөрөмж, зарим screen recorder-ийг
 // браузераас бүрэн хориглох боломжгүй. Бодит хамгаалалт = DRM (Widevine/FairPlay).
@@ -73,6 +74,14 @@ function Watermark({ text, onTamper }: { text: string; onTamper: () => void }) {
   );
 }
 
+const SPEEDS = [1, 1.25, 1.5, 2, 0.75];
+const fmt = (t: number) => {
+  if (!isFinite(t) || t < 0) t = 0;
+  const h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = Math.floor(t % 60);
+  const mm = h ? String(m).padStart(2, "0") : String(m);
+  return `${h ? h + ":" : ""}${mm}:${String(s).padStart(2, "0")}`;
+};
+
 export default function LocalPlayer({
   url,
   title,
@@ -93,10 +102,61 @@ export default function LocalPlayer({
   // UUID-ийн эхний 8 тэмдэгт (бүтэн id-аар profiles хүснэгтээс хайж олно)
   const wmText = viewerId ? `ID: ${viewerId.slice(0, 8)}` : null;
 
+  // --- Тоглуулагчийн төлөв ---
+  const [playing, setPlaying] = useState(false);
+  const [cur, setCur] = useState(0);
+  const [dur, setDur] = useState(0);
+  const [buffering, setBuffering] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const [speed, setSpeed] = useState(1);
+  const [fs, setFs] = useState(false);
+  const [showUI, setShowUI] = useState(true);
+  const [flash, setFlash] = useState<{ side: "l" | "r"; n: number } | null>(null);
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTap = useRef<{ t: number; side: "l" | "r" | "c" }>({ t: 0, side: "c" });
+  const tapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const onTamper = useCallback(() => {
     videoRef.current?.pause();
     setShield(true);
   }, []);
+
+  const wake = useCallback(() => {
+    setShowUI(true);
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+    hideTimer.current = setTimeout(() => {
+      if (videoRef.current && !videoRef.current.paused) setShowUI(false);
+    }, 3000);
+  }, []);
+
+  const togglePlay = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) v.play().catch(() => {});
+    else v.pause();
+    wake();
+  };
+  const seekBy = (d: number) => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.currentTime = Math.max(0, Math.min((v.duration || 0) - 0.1, v.currentTime + d));
+    wake();
+  };
+  const cycleSpeed = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    const next = SPEEDS[(SPEEDS.indexOf(speed) + 1) % SPEEDS.length];
+    v.playbackRate = next;
+    setSpeed(next);
+    wake();
+  };
+  const toggleMute = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = !v.muted;
+    setMuted(v.muted);
+    wake();
+  };
 
   // Видеоны native fullscreen нь зөвхөн <video>-г томруулж watermark-г алдагдуулдаг тул
   // watermark-тай хамт container-ийг бүтэн дэлгэц болгоно.
@@ -106,6 +166,71 @@ export default function LocalPlayer({
     if (document.fullscreenElement) document.exitFullscreen?.();
     else if (box.requestFullscreen) box.requestFullscreen().catch(() => {});
     else (videoRef.current as (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null)?.webkitEnterFullscreen?.(); // iOS Safari (watermark харагдахгүй)
+  };
+
+  // Бүтэн дэлгэцэд орохдоо утсыг хэвтээ болгоно
+  useEffect(() => {
+    const onFs = () => {
+      const on = !!document.fullscreenElement;
+      setFs(on);
+      const so = screen.orientation as ScreenOrientation & { lock?: (o: string) => Promise<void> };
+      try {
+        if (on) so.lock?.("landscape").catch(() => {});
+        else so.unlock?.();
+      } catch {}
+    };
+    document.addEventListener("fullscreenchange", onFs);
+    return () => document.removeEventListener("fullscreenchange", onFs);
+  }, []);
+
+  // Видеоны үйл явдлуудыг төлөвт холбоно
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!isFile || !v) return;
+    const on = {
+      play: () => { setPlaying(true); wake(); },
+      pause: () => { setPlaying(false); setShowUI(true); },
+      timeupdate: () => setCur(v.currentTime),
+      durationchange: () => setDur(v.duration || 0),
+      loadedmetadata: () => setDur(v.duration || 0),
+      waiting: () => setBuffering(true),
+      playing: () => setBuffering(false),
+      canplay: () => setBuffering(false),
+    } as const;
+    Object.entries(on).forEach(([e, f]) => v.addEventListener(e, f));
+    return () => Object.entries(on).forEach(([e, f]) => v.removeEventListener(e, f));
+  }, [isFile, wake]);
+
+  // Хуруугаар хоёр товшоход ±10 сек, нэг товшоход удирдлага харуулах/нуух
+  const onTap = (e: React.MouseEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width;
+    const side: "l" | "r" | "c" = x < 0.35 ? "l" : x > 0.65 ? "r" : "c";
+    const now = Date.now();
+    if (now - lastTap.current.t < 300 && side !== "c" && side === lastTap.current.side) {
+      if (tapTimer.current) clearTimeout(tapTimer.current);
+      seekBy(side === "l" ? -10 : 10);
+      setFlash({ side, n: Date.now() });
+      setTimeout(() => setFlash(null), 600);
+      lastTap.current = { t: 0, side: "c" };
+      return;
+    }
+    lastTap.current = { t: now, side };
+    if (tapTimer.current) clearTimeout(tapTimer.current);
+    tapTimer.current = setTimeout(() => {
+      if (side === "c") togglePlay();
+      else if (showUI && playing) setShowUI(false);
+      else wake();
+    }, 300);
+  };
+
+  const onKey = (e: React.KeyboardEvent) => {
+    const k = e.key.toLowerCase();
+    if (k === " " || k === "k") { e.preventDefault(); togglePlay(); }
+    else if (k === "arrowleft" || k === "j") seekBy(-10);
+    else if (k === "arrowright" || k === "l") seekBy(10);
+    else if (k === "m") toggleMute();
+    else if (k === "f") toggleFullscreen();
   };
 
   // Үргэлжлүүлж үзэх: байрлалыг localStorage-д хадгална
@@ -168,13 +293,18 @@ export default function LocalPlayer({
     };
   }, [isFile]);
 
+  const btn = "p-2 rounded-full text-white hover:bg-white/15 active:bg-white/25 transition-colors";
+
   return (
     <div className="glass-container p-4 lg:p-6 select-none">
       <style>{`@media print { .protected-player { display: none !important; } }`}</style>
       <h2 className="text-xl lg:text-2xl font-bold text-white mb-4">Watch {title}</h2>
       <div
         ref={boxRef}
-        className="protected-player relative w-full aspect-video rounded-xl overflow-hidden bg-black"
+        tabIndex={0}
+        onKeyDown={isFile ? onKey : undefined}
+        onMouseMove={isFile ? wake : undefined}
+        className="protected-player relative w-full aspect-video rounded-xl overflow-hidden bg-black outline-none"
         onContextMenu={(e) => e.preventDefault()}
       >
         {isFile ? (
@@ -183,22 +313,95 @@ export default function LocalPlayer({
               ref={videoRef}
               src={url}
               poster={poster ?? undefined}
-              controls
               playsInline
               controlsList="nodownload noremoteplayback nofullscreen"
               disablePictureInPicture
               disableRemotePlayback
               className="absolute inset-0 w-full h-full"
             />
+
+            {/* Товшилтын давхарга: 2 товшилт = ±10 сек, төвд товшвол тоглуулах/зогсоох */}
+            <div className="absolute inset-0 z-10" onClick={onTap} />
+
             {wmText && <Watermark text={wmText} onTamper={onTamper} />}
-            <button
-              type="button"
-              onClick={toggleFullscreen}
-              aria-label="Бүтэн дэлгэц"
-              className="absolute top-2 right-2 z-30 rounded bg-black/50 hover:bg-black/70 text-white text-xs px-2 py-1"
+
+            {flash && (
+              <div
+                className={`absolute top-1/2 -translate-y-1/2 z-20 pointer-events-none rounded-full bg-black/60 px-4 py-3 text-white text-sm font-semibold ${
+                  flash.side === "l" ? "left-[12%]" : "right-[12%]"
+                }`}
+              >
+                {flash.side === "l" ? "⏪ 10 сек" : "10 сек ⏩"}
+              </div>
+            )}
+
+            {buffering && (
+              <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                <Loader2 className="h-10 w-10 text-white animate-spin" />
+              </div>
+            )}
+
+            {/* Удирдлага */}
+            <div
+              className={`absolute inset-x-0 bottom-0 z-30 transition-opacity duration-300 ${
+                showUI ? "opacity-100" : "opacity-0 pointer-events-none"
+              }`}
             >
-              ⛶
-            </button>
+              <div className="bg-gradient-to-t from-black/85 to-transparent px-2 pt-8 pb-1 sm:px-3">
+                <input
+                  type="range"
+                  min={0}
+                  max={dur || 0}
+                  step={1}
+                  value={cur}
+                  onChange={(e) => {
+                    const v = videoRef.current;
+                    if (v) v.currentTime = Number(e.target.value);
+                    setCur(Number(e.target.value));
+                    wake();
+                  }}
+                  aria-label="Хугацаа"
+                  className="w-full h-1 accent-yellow-400 cursor-pointer"
+                />
+                <div className="flex items-center gap-0.5 sm:gap-1">
+                  <button type="button" onClick={togglePlay} aria-label={playing ? "Зогсоох" : "Тоглуулах"} className={btn}>
+                    {playing ? <Pause className="h-5 w-5 fill-current" /> : <Play className="h-5 w-5 fill-current" />}
+                  </button>
+                  <button type="button" onClick={() => seekBy(-10)} aria-label="10 сек ухраах" className={btn}>
+                    <RotateCcw className="h-5 w-5" />
+                  </button>
+                  <button type="button" onClick={() => seekBy(10)} aria-label="10 сек урагшлуулах" className={btn}>
+                    <RotateCw className="h-5 w-5" />
+                  </button>
+                  <span className="ml-1 text-xs text-white tabular-nums">
+                    {fmt(cur)} / {fmt(dur)}
+                  </span>
+                  <span className="flex-1" />
+                  <button type="button" onClick={cycleSpeed} aria-label="Хурд" className={`${btn} text-xs font-bold min-w-[44px]`}>
+                    {speed}x
+                  </button>
+                  <button type="button" onClick={toggleMute} aria-label="Дуу" className={btn}>
+                    {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                  </button>
+                  <button type="button" onClick={toggleFullscreen} aria-label="Бүтэн дэлгэц" className={btn}>
+                    {fs ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Зогссон үед голд том тоглуулах товч */}
+            {!playing && !buffering && (
+              <button
+                type="button"
+                onClick={togglePlay}
+                aria-label="Тоглуулах"
+                className="absolute left-1/2 top-1/2 z-30 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/60 p-5 text-white backdrop-blur-sm active:scale-95 transition-transform"
+              >
+                <Play className="h-9 w-9 fill-current" />
+              </button>
+            )}
+
             {shield && (
               <div className="absolute inset-0 bg-black flex items-center justify-center text-gray-300 text-sm z-40">
                 Хамгаалагдсан агуулга
