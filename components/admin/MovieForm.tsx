@@ -25,6 +25,12 @@ const empty: FormState = {
   published: true,
 };
 
+// Бүх кино төрөл (TMDB-тэй ижил нэртэй тул "Бөглөх" товч автоматаар сонгоно)
+const ALL_GENRES = [
+  "Action", "Adventure", "Animation", "Comedy", "Crime", "Documentary", "Drama", "Family", "Fantasy",
+  "History", "Horror", "Music", "Mystery", "Romance", "Science Fiction", "Thriller", "TV Movie", "War", "Western",
+];
+
 const field =
   "w-full rounded-lg bg-gray-900 border border-gray-700 px-3 py-2 text-white outline-none focus:border-theme-primary";
 
@@ -53,6 +59,12 @@ export default function MovieForm({ movie }: { movie?: LocalMovie }) {
   const [progress, setProgress] = useState<number | null>(null);
 
   const set = (k: keyof FormState, v: string | boolean) => setF((p) => ({ ...p, [k]: v }));
+
+  const selectedGenres = f.genres.split(",").map((g) => g.trim()).filter(Boolean);
+  // Жагсаалтад байхгүй (өмнө гараар бичсэн) төрлийг ч сонголт болгож харуулна
+  const genreChoices = [...ALL_GENRES, ...selectedGenres.filter((g) => !ALL_GENRES.includes(g))];
+  const toggleGenre = (g: string) =>
+    set("genres", (selectedGenres.includes(g) ? selectedGenres.filter((x) => x !== g) : [...selectedGenres, g]).join(", "));
 
   async function fillFromTmdb() {
     if (!f.tmdb_id) return toast.error("TMDB ID оруулна уу");
@@ -166,7 +178,7 @@ export default function MovieForm({ movie }: { movie?: LocalMovie }) {
         <textarea rows={4} className={field} value={f.overview} onChange={(e) => set("overview", e.target.value)} />
       </div>
 
-      <div className="grid sm:grid-cols-4 gap-4">
+      <div className="grid sm:grid-cols-3 gap-4">
         <div>
           <label className={label}>Он</label>
           <input className={field} inputMode="numeric" value={f.release_year} onChange={(e) => set("release_year", e.target.value)} />
@@ -179,9 +191,33 @@ export default function MovieForm({ movie }: { movie?: LocalMovie }) {
           <label className={label}>Хугацаа (мин)</label>
           <input className={field} inputMode="numeric" value={f.runtime} onChange={(e) => set("runtime", e.target.value)} />
         </div>
-        <div>
-          <label className={label}>Төрөл (таслалаар)</label>
-          <input className={field} placeholder="Action, Drama" value={f.genres} onChange={(e) => set("genres", e.target.value)} />
+      </div>
+
+      {/* Төрөл: админ сонгоход үзэгчдэд киноны хуудсан дээр харагдана */}
+      <div>
+        <label className={label}>
+          Төрөл (олныг сонгож болно){selectedGenres.length > 0 && ` · ${selectedGenres.length} сонгосон`}
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {genreChoices.map((g) => {
+            const on = selectedGenres.includes(g);
+            return (
+              <button
+                key={g}
+                type="button"
+                aria-pressed={on}
+                onClick={() => toggleGenre(g)}
+                className={`rounded-full border px-3.5 py-1.5 text-sm transition-all active:scale-95 ${
+                  on
+                    ? "border-theme-primary bg-theme-primary text-black font-semibold"
+                    : "border-gray-700 bg-gray-900 text-gray-300 hover:border-gray-500 hover:text-white"
+                }`}
+              >
+                {on && "✓ "}
+                {g}
+              </button>
+            );
+          })}
         </div>
       </div>
 
