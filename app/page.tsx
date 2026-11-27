@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import Hero from "@/components/hero/Hero";
 import CategorySection from "@/components/info/CategorySection";
 import LocalMoviesSection from "@/components/local/LocalMoviesSection";
 
@@ -14,7 +13,6 @@ export const revalidate = 60;
 export default async function HomePage() {
   return (
     <div className="app-bg-enhanced mt-16">
-      <Hero />
       <div className="relative z-10 pt-8">
         <div className="container mx-auto px-4">
           <div className="space-y-12">
