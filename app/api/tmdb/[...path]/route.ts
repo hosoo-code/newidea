@@ -19,7 +19,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ path
     return NextResponse.json({ error: "Not allowed" }, { status: 403 });
   }
 
-  const token = process.env.TMDB_ACCESS_TOKEN;
+  const token = process.env.TMDB_ACCESS_TOKEN?.replace(/\s+/g, "");
   const apiKey = process.env.API_KEY;
   if (!token && !apiKey) {
     return NextResponse.json({ error: "TMDB тохируулаагүй байна" }, { status: 500 });

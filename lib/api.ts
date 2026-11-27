@@ -11,7 +11,7 @@ import {
 } from "./types";
 
 // Support both legacy API_KEY and new ACCESS_TOKEN for backward compatibility
-const ACCESS_TOKEN = process.env.TMDB_ACCESS_TOKEN;
+const ACCESS_TOKEN = process.env.TMDB_ACCESS_TOKEN?.replace(/\s+/g, "");
 const API_KEY = process.env.API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
 

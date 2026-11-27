@@ -14,7 +14,7 @@ const ALLOWED: Record<string, string> = {
 const MAX_BYTES = 10 * 1024 * 1024;
 
 export async function POST(req: NextRequest) {
-  const publicBase = (process.env.R2_IMAGES_PUBLIC_URL || process.env.R2_PUBLIC_URL)?.replace(/\/$/, "");
+  const publicBase = (process.env.R2_IMAGES_PUBLIC_URL?.trim() || process.env.R2_PUBLIC_URL?.trim())?.replace(/\/$/, "");
   if (!process.env.R2_ACCOUNT_ID || !R2_IMAGES_BUCKET() || !publicBase) {
     return NextResponse.json({ error: "R2 тохируулаагүй байна" }, { status: 500 });
   }
@@ -45,9 +45,16 @@ export async function POST(req: NextRequest) {
         CacheControl: "public, max-age=31536000, immutable",
       })
     );
-  } catch (e) {
-    console.error("[r2] image upload failed:", e);
-    return NextResponse.json({ error: "R2 руу upload амжилтгүй" }, { status: 502 });
+  } catch (e: any) {
+    const name = e?.name ?? "Error";
+    const msg = e?.message ?? String(e);
+    const http = e?.$metadata?.httpStatusCode;
+    console.error("[r2] image upload failed:", { name, msg, http, bucket: R2_IMAGES_BUCKET() }, e);
+    // admin-only route тул жинхэнэ шалтгааныг харуулна
+    return NextResponse.json(
+      { error: `R2 руу upload амжилтгүй: ${name}${http ? ` (${http})` : ""} — ${msg}` },
+      { status: 502 }
+    );
   }
 
   return NextResponse.json({ url: `${publicBase}/${key}`, key });
