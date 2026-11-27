@@ -45,10 +45,11 @@ export async function POST(req: NextRequest) {
         CacheControl: "public, max-age=31536000, immutable",
       })
     );
-  } catch (e: any) {
-    const name = e?.name ?? "Error";
-    const msg = e?.message ?? String(e);
-    const http = e?.$metadata?.httpStatusCode;
+  } catch (e) {
+    const err = e as { name?: string; message?: string; $metadata?: { httpStatusCode?: number } };
+    const name = err?.name ?? "Error";
+    const msg = err?.message ?? String(e);
+    const http = err?.$metadata?.httpStatusCode;
     console.error("[r2] image upload failed:", { name, msg, http, bucket: R2_IMAGES_BUCKET() }, e);
     // admin-only route тул жинхэнэ шалтгааныг харуулна
     return NextResponse.json(
