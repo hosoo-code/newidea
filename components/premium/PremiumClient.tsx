@@ -6,6 +6,9 @@ import { toast } from "sonner";
 
 type Plan = { id: string; label: string; amount: number; days: number };
 type PayLink = { href: string; label: string; logo?: string; kind: "web" | "app" };
+type Result = "success" | "failed" | "expired";
+const PAY_SECONDS = 10 * 60; // төлбөрийн хугацаа
+const fmt = (n: number) => `${String(Math.floor(n / 60)).padStart(2, "0")}:${String(n % 60).padStart(2, "0")}`;
 type Pay = { intentId: string; qrText?: string; qrImage?: string; links: PayLink[]; raw: unknown };
 
 const IMG_KEY = /logo|icon|image|img|avatar|thumb/i;
@@ -63,29 +66,55 @@ export default function PremiumClient({ plans }: { plans: Plan[] }) {
   const [pay, setPay] = useState<Pay | null>(null);
   const [selected, setSelected] = useState<Plan | null>(null);
   const [showAll, setShowAll] = useState(false);
+  const [result, setResult] = useState<Result | null>(null);
+  const [left, setLeft] = useState(PAY_SECONDS);
   const timer = useRef<ReturnType<typeof setInterval>>();
+  const tick = useRef<ReturnType<typeof setInterval>>();
   const router = useRouter();
 
-  useEffect(() => () => clearInterval(timer.current), []);
+  const stopTimers = () => {
+    clearInterval(timer.current);
+    clearInterval(tick.current);
+  };
+  useEffect(() => stopTimers, []);
 
-  const check = async (intentId: string) => {
+  const fetchStatus = async (intentId: string): Promise<string> => {
     try {
       const r = await fetch(`/api/payments/${intentId}`, { cache: "no-store" });
-      const { status } = await r.json();
-      if (status === "succeeded") {
-        clearInterval(timer.current);
-        toast.success("Төлбөр амжилттай! Premium идэвхжлээ 🎉");
-        setPay(null);
-        setSelected(null);
-        router.refresh();
-      } else if (status === "failed") {
-        clearInterval(timer.current);
-        toast.error("Төлбөр амжилтгүй боллоо");
-        setPay(null);
-        setSelected(null);
-      }
-    } catch {}
+      return (await r.json()).status ?? "pending";
+    } catch {
+      return "pending";
+    }
   };
+
+  const finish = (r: Result) => {
+    stopTimers();
+    setResult(r);
+    if (r === "success") toast.success("Төлбөр амжилттай! Premium идэвхжлээ 🎉");
+  };
+
+  const check = async (intentId: string) => {
+    const status = await fetchStatus(intentId);
+    if (status === "succeeded") finish("success");
+    else if (status === "failed") finish("failed");
+  };
+
+  // Хугацаа дуусахад сүүлчийн удаа шалгаад, төлөгдсөн бол амжилттай, үгүй бол "хугацаа дууссан"
+  const expire = async (intentId: string) => {
+    stopTimers();
+    finish((await fetchStatus(intentId)) === "succeeded" ? "success" : "expired");
+  };
+
+  function startCountdown(intentId: string) {
+    clearInterval(tick.current);
+    const endsAt = Date.now() + PAY_SECONDS * 1000;
+    setLeft(PAY_SECONDS);
+    tick.current = setInterval(() => {
+      const secs = Math.max(0, Math.ceil((endsAt - Date.now()) / 1000));
+      setLeft(secs);
+      if (secs === 0) expire(intentId);
+    }, 1000);
+  }
 
   function poll(intentId: string) {
     clearInterval(timer.current);
@@ -100,11 +129,11 @@ export default function PremiumClient({ plans }: { plans: Plan[] }) {
   // Банкны аппаас буцаж ирэхэд төлбөрийг шууд шалгана
   useEffect(() => {
     if (!pay) return;
-    const onVisible = () => document.visibilityState === "visible" && check(pay.intentId);
+    const onVisible = () => document.visibilityState === "visible" && !result && check(pay.intentId);
     document.addEventListener("visibilitychange", onVisible);
     return () => document.removeEventListener("visibilitychange", onVisible);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pay]);
+  }, [pay, result]);
 
   // Төлбөрийн цонх нээлттэй үед ар талын scroll-ийг түгжинэ
   useEffect(() => {
@@ -116,10 +145,20 @@ export default function PremiumClient({ plans }: { plans: Plan[] }) {
     };
   }, [pay]);
 
-  function closePay() {
-    clearInterval(timer.current);
-    setPay(null);
-    setSelected(null);
+  // X дарахад: үр дүн гарсан бол цонхыг хаана. Гараагүй бол сүүлчийн шалгалт хийж,
+  // төлөгдсөн бол "амжилттай", үгүй бол "амжилтгүй" гэж харуулна.
+  async function closePay() {
+    if (!pay) return;
+    if (result) {
+      const ok = result === "success";
+      setPay(null);
+      setSelected(null);
+      setResult(null);
+      if (ok) router.refresh();
+      return;
+    }
+    stopTimers();
+    finish((await fetchStatus(pay.intentId)) === "succeeded" ? "success" : "failed");
   }
 
   async function buy(plan: string) {
@@ -135,8 +174,10 @@ export default function PremiumClient({ plans }: { plans: Plan[] }) {
       if (!res.ok) throw new Error(json.error ?? "Алдаа гарлаа");
       setShowAll(false);
       setSelected(plans.find((x) => x.id === plan) ?? null);
+      setResult(null);
       setPay({ intentId: json.intentId, raw: json.nextAction, ...extract(json.nextAction) });
       poll(json.intentId);
+      startCountdown(json.intentId);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Алдаа гарлаа");
     } finally {
@@ -209,6 +250,34 @@ export default function PremiumClient({ plans }: { plans: Plan[] }) {
               </button>
             </div>
 
+            {result ? (
+              <div className="flex flex-col items-center gap-4 py-6 text-center">
+                <div
+                  className={`flex h-20 w-20 items-center justify-center rounded-full text-4xl ${
+                    result === "success" ? "bg-green-500/15 text-green-400" : "bg-red-500/15 text-red-400"
+                  }`}
+                >
+                  {result === "success" ? "✓" : "✕"}
+                </div>
+                <h4 className="text-xl font-bold text-white">
+                  {result === "success" ? "Төлбөр амжилттай" : "Төлбөр амжилтгүй"}
+                </h4>
+                <p className="text-sm text-gray-400">
+                  {result === "success"
+                    ? "Таны Premium эрх идэвхжлээ. Баярлалаа!"
+                    : result === "expired"
+                      ? "Төлбөрийн хугацаа дууслаа. Дахин оролдоно уу."
+                      : "Төлбөр хийгдсэнгүй. Хэрэв төлсөн бол түр хүлээгээд хуудсаа шинэчилнэ үү."}
+                </p>
+                <button
+                  type="button"
+                  onClick={closePay}
+                  className="w-full rounded-lg bg-theme-primary py-2.5 font-semibold text-black"
+                >
+                  {result === "success" ? "Үргэлжлүүлэх" : "Хаах"}
+                </button>
+              </div>
+            ) : (
             <div className="flex flex-col gap-5 text-center">
               {appLinks.length > 0 && (
                 <div className="order-1 sm:order-2 space-y-2">
@@ -268,8 +337,12 @@ export default function PremiumClient({ plans }: { plans: Plan[] }) {
                 <p className="text-gray-400 text-sm">Төлбөрийн заавар хүлээж авсангүй. Wire dashboard дээр QPay идэвхтэй эсэхийг шалгана уу.</p>
               )}
 
-              <p className="order-4 text-xs text-gray-400">Төлбөр баталгаажихыг автоматаар хүлээж байна…</p>
+              <div className="order-4 space-y-1">
+                <p className={`text-2xl font-bold tabular-nums ${left <= 60 ? "text-red-400" : "text-white"}`}>{fmt(left)}</p>
+                <p className="text-xs text-gray-400">Төлбөр баталгаажихыг автоматаар хүлээж байна…</p>
+              </div>
             </div>
+            )}
           </div>
         </div>
       )}
