@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
 
@@ -82,6 +83,8 @@ export default function PremiumClient({
   const timer = useRef<ReturnType<typeof setInterval>>();
   const tick = useRef<ReturnType<typeof setInterval>>();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const stopTimers = () => {
     clearInterval(timer.current);
@@ -262,7 +265,7 @@ export default function PremiumClient({
         })}
       </div>
 
-      {pay && (
+      {pay && mounted && createPortal(
         <div
           className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm"
           role="dialog"
@@ -397,7 +400,8 @@ export default function PremiumClient({
             </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
