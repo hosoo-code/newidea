@@ -14,11 +14,11 @@ export default function MovieRowActions({ id, title }: { id: number; title: stri
     } else toast.error("Устгаж чадсангүй");
   }
   return (
-    <div className="flex gap-3 text-sm">
-      <Link href={`/admin/movies/${id}`} className="text-theme-primary hover:underline">
+    <div className="flex flex-col sm:flex-row gap-2 text-sm shrink-0">
+      <Link href={`/admin/movies/${id}`} className="rounded-lg border border-gray-700 px-3 py-1.5 text-center text-theme-primary hover:border-theme-primary">
         Засах
       </Link>
-      <button onClick={del} className="text-red-400 hover:underline">
+      <button onClick={del} className="rounded-lg border border-gray-700 px-3 py-1.5 text-red-400 hover:border-red-400">
         Устгах
       </button>
     </div>

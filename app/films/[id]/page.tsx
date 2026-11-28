@@ -49,6 +49,9 @@ export default async function FilmDetailPage({ params }: Props) {
               {movie.title}
               {movie.release_year && <span className="text-gray-400 font-normal"> ({movie.release_year})</span>}
             </h1>
+            {movie.original_title && movie.original_title !== movie.title && (
+              <p className="-mt-2 text-sm italic text-gray-400">{movie.original_title}</p>
+            )}
             <div className="flex flex-wrap items-center gap-3 text-sm text-gray-300">
               {!!movie.rating && movie.rating > 0 && (
                 <span className="text-yellow-400 font-semibold">⭐ {Number(movie.rating).toFixed(1)}</span>

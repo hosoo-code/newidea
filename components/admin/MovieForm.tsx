@@ -32,7 +32,11 @@ const ALL_GENRES = [
 ];
 
 const field =
-  "w-full rounded-lg bg-gray-900 border border-gray-700 px-3 py-2 text-white outline-none focus:border-theme-primary";
+  "w-full rounded-xl bg-gray-900/80 border border-gray-700/80 px-4 py-3 text-base text-white placeholder:text-gray-500 outline-none transition-colors focus:border-theme-primary focus:ring-2 focus:ring-theme-primary/20";
+const card = "rounded-2xl border border-gray-800 bg-gray-900/40 p-4 sm:p-6 space-y-4";
+const secTitle = "text-xs font-semibold uppercase tracking-wider text-theme-primary";
+const ghostBtn =
+  "inline-flex items-center justify-center rounded-xl bg-gray-800 hover:bg-gray-700 active:scale-95 border border-gray-700 text-white px-4 py-3 text-sm font-medium transition-all";
 
 export default function MovieForm({ movie }: { movie?: LocalMovie }) {
   const router = useRouter();
@@ -147,57 +151,63 @@ export default function MovieForm({ movie }: { movie?: LocalMovie }) {
     router.refresh();
   }
 
-  const label = "block text-sm text-gray-300 mb-1";
+  const label = "block text-sm font-medium text-gray-300 mb-1.5";
 
   return (
-    <form onSubmit={submit} className="space-y-5 max-w-3xl">
-      {/* TMDB autofill */}
-      <div className="glass-container p-4 flex flex-wrap items-end gap-3">
-        <div className="flex-1 min-w-[160px]">
-          <label className={label}>TMDB ID (заавал биш – автоматаар бөглөнө)</label>
-          <input className={field} value={f.tmdb_id} onChange={(e) => set("tmdb_id", e.target.value)} inputMode="numeric" />
+    <form onSubmit={submit} className="space-y-5 max-w-3xl pb-28">
+      {/* 1. TMDB автоматаар бөглөх */}
+      <section className={card}>
+        <h2 className={secTitle}>⚡ Хурдан бөглөх</h2>
+        <div>
+          <label className={label}>TMDB ID <span className="text-gray-500 font-normal">(заавал биш)</span></label>
+          <div className="flex gap-3">
+            <input className={field} value={f.tmdb_id} onChange={(e) => set("tmdb_id", e.target.value)} inputMode="numeric" placeholder="жишээ: 550" />
+            <button type="button" onClick={fillFromTmdb} disabled={busy === "tmdb"} className={`${ghostBtn} shrink-0 disabled:opacity-50`}>
+              {busy === "tmdb" ? "..." : "Бөглөх"}
+            </button>
+          </div>
         </div>
-        <button type="button" onClick={fillFromTmdb} disabled={busy === "tmdb"} className="rounded-lg bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 disabled:opacity-50">
-          {busy === "tmdb" ? "..." : "Бөглөх"}
-        </button>
-      </div>
+      </section>
 
-      <div className="grid sm:grid-cols-2 gap-4">
-        <div>
-          <label className={label}>Нэр *</label>
-          <input required className={field} value={f.title} onChange={(e) => set("title", e.target.value)} />
+      {/* 2. Үндсэн мэдээлэл */}
+      <section className={card}>
+        <h2 className={secTitle}>Үндсэн мэдээлэл</h2>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className={label}>Нэр <span className="text-red-400">*</span></label>
+            <input required className={field} value={f.title} onChange={(e) => set("title", e.target.value)} placeholder="Киноны нэр" />
+          </div>
+          <div>
+            <label className={label}>Эх нэр <span className="text-gray-500 font-normal">(заавал биш)</span></label>
+            <input className={field} value={f.original_title} onChange={(e) => set("original_title", e.target.value)} placeholder="Анхны хэл дээрх нэр" />
+          </div>
         </div>
         <div>
-          <label className={label}>Эх нэр</label>
-          <input className={field} value={f.original_title} onChange={(e) => set("original_title", e.target.value)} />
+          <label className={label}>Тайлбар</label>
+          <textarea rows={4} className={`${field} resize-y`} value={f.overview} onChange={(e) => set("overview", e.target.value)} placeholder="Киноны товч агуулга..." />
         </div>
-      </div>
+        <div className="grid grid-cols-3 gap-3 sm:gap-4">
+          <div>
+            <label className={label}>Он</label>
+            <input className={field} inputMode="numeric" value={f.release_year} onChange={(e) => set("release_year", e.target.value)} placeholder="2024" />
+          </div>
+          <div>
+            <label className={label}>Үнэлгээ</label>
+            <input className={field} inputMode="decimal" value={f.rating} onChange={(e) => set("rating", e.target.value)} placeholder="0–10" />
+          </div>
+          <div>
+            <label className={label}>Минут</label>
+            <input className={field} inputMode="numeric" value={f.runtime} onChange={(e) => set("runtime", e.target.value)} placeholder="120" />
+          </div>
+        </div>
+      </section>
 
-      <div>
-        <label className={label}>Тайлбар</label>
-        <textarea rows={4} className={field} value={f.overview} onChange={(e) => set("overview", e.target.value)} />
-      </div>
-
-      <div className="grid sm:grid-cols-3 gap-4">
-        <div>
-          <label className={label}>Он</label>
-          <input className={field} inputMode="numeric" value={f.release_year} onChange={(e) => set("release_year", e.target.value)} />
+      {/* 3. Төрөл */}
+      <section className={card}>
+        <div className="flex items-center justify-between">
+          <h2 className={secTitle}>Төрөл</h2>
+          <span className="text-xs text-gray-400">{selectedGenres.length > 0 ? `${selectedGenres.length} сонгосон` : "олныг сонгож болно"}</span>
         </div>
-        <div>
-          <label className={label}>Үнэлгээ (0–10)</label>
-          <input className={field} inputMode="decimal" value={f.rating} onChange={(e) => set("rating", e.target.value)} />
-        </div>
-        <div>
-          <label className={label}>Хугацаа (мин)</label>
-          <input className={field} inputMode="numeric" value={f.runtime} onChange={(e) => set("runtime", e.target.value)} />
-        </div>
-      </div>
-
-      {/* Төрөл: админ сонгоход үзэгчдэд киноны хуудсан дээр харагдана */}
-      <div>
-        <label className={label}>
-          Төрөл (олныг сонгож болно){selectedGenres.length > 0 && ` · ${selectedGenres.length} сонгосон`}
-        </label>
         <div className="flex flex-wrap gap-2">
           {genreChoices.map((g) => {
             const on = selectedGenres.includes(g);
@@ -209,8 +219,8 @@ export default function MovieForm({ movie }: { movie?: LocalMovie }) {
                 onClick={() => toggleGenre(g)}
                 className={`rounded-full border px-3.5 py-1.5 text-sm transition-all active:scale-95 ${
                   on
-                    ? "border-theme-primary bg-theme-primary text-black font-semibold"
-                    : "border-gray-700 bg-gray-900 text-gray-300 hover:border-gray-500 hover:text-white"
+                    ? "border-theme-primary bg-theme-primary text-black font-semibold shadow-[0_0_12px_rgba(253,228,2,0.25)]"
+                    : "border-gray-700 bg-gray-900/80 text-gray-300 hover:border-gray-500 hover:text-white"
                 }`}
               >
                 {on && "✓ "}
@@ -219,53 +229,91 @@ export default function MovieForm({ movie }: { movie?: LocalMovie }) {
             );
           })}
         </div>
-      </div>
+      </section>
 
-      {(["poster_url", "backdrop_url"] as const).map((k) => (
-        <div key={k}>
-          <label className={label}>{k === "poster_url" ? "Poster" : "Backdrop"} (URL эсвэл upload)</label>
-          <div className="flex gap-3 items-start">
-            <input className={field} value={f[k]} onChange={(e) => set(k, e.target.value)} placeholder="https://..." />
-            <label className="shrink-0 cursor-pointer rounded-lg bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 text-sm">
-              {busy === k ? "..." : "Upload"}
-              <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" hidden onChange={(e) => e.target.files?.[0] && upload(e.target.files[0], k)} />
-            </label>
-          </div>
-          {f[k] && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={f[k]} alt="" className={`mt-2 rounded-lg object-cover ${k === "poster_url" ? "h-40" : "h-28"}`} />
-          )}
+      {/* 4. Зураг */}
+      <section className={card}>
+        <h2 className={secTitle}>Зураг</h2>
+        <div className="grid gap-5 sm:grid-cols-[1fr_1.6fr]">
+          {(["poster_url", "backdrop_url"] as const).map((k) => {
+            const isPoster = k === "poster_url";
+            return (
+              <div key={k} className="space-y-2">
+                <label className={label}>{isPoster ? "Poster" : "Backdrop"}</label>
+                <div
+                  className={`relative overflow-hidden rounded-xl border border-dashed border-gray-700 bg-gray-950/60 ${
+                    isPoster ? "aspect-[2/3] max-w-[180px]" : "aspect-video"
+                  }`}
+                >
+                  {f[k] ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={f[k]} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center text-xs text-gray-500">Зураг алга</div>
+                  )}
+                  {busy === k && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-sm text-white">Upload...</div>
+                  )}
+                </div>
+                <input className={field} value={f[k]} onChange={(e) => set(k, e.target.value)} placeholder="https://... линк" />
+                <label className={`${ghostBtn} w-full cursor-pointer`}>
+                  📷 Зураг upload хийх
+                  <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" hidden onChange={(e) => e.target.files?.[0] && upload(e.target.files[0], k)} />
+                </label>
+              </div>
+            );
+          })}
         </div>
-      ))}
+      </section>
 
-      <div>
-        <label className={label}>Видео (R2 руу upload хийх, эсвэл линк буулгах)</label>
-        <div className="flex gap-3 items-start">
+      {/* 5. Видео */}
+      <section className={card}>
+        <h2 className={secTitle}>Видео</h2>
+        <div className="space-y-3">
           <input className={field} value={f.video_url} onChange={(e) => set("video_url", e.target.value)} placeholder="https://... (.mp4 / .m3u8 / embed)" />
-          <label className="shrink-0 cursor-pointer rounded-lg bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 text-sm">
-            {progress !== null ? `${progress}%` : "Upload MP4"}
+          <label className={`${ghostBtn} w-full cursor-pointer ${progress !== null ? "opacity-60 pointer-events-none" : ""}`}>
+            {progress !== null ? `Upload хийж байна… ${progress}%` : "🎬 MP4 файл R2 руу upload хийх"}
             <input type="file" accept="video/mp4,video/webm" hidden disabled={progress !== null} onChange={(e) => e.target.files?.[0] && uploadVideo(e.target.files[0])} />
           </label>
+          {progress !== null && (
+            <div className="h-2 rounded-full bg-gray-800 overflow-hidden">
+              <div className="h-full bg-theme-primary transition-all" style={{ width: `${progress}%` }} />
+            </div>
+          )}
+          {f.video_url && progress === null && (
+            <p className="text-xs text-green-400 truncate">✓ Видео холбогдсон: {f.video_url}</p>
+          )}
         </div>
-        {progress !== null && (
-          <div className="mt-2 h-2 rounded bg-gray-800 overflow-hidden">
-            <div className="h-full bg-theme-primary transition-all" style={{ width: `${progress}%` }} />
-          </div>
-        )}
-      </div>
+      </section>
 
-      <label className="flex items-center gap-2 text-gray-200">
-        <input type="checkbox" checked={f.published} onChange={(e) => set("published", e.target.checked)} />
-        Нийтлэх (унтраавал зөвхөн draft болно)
-      </label>
+      {/* 6. Нийтлэх (toggle) */}
+      <section className={`${card} !space-y-0`}>
+        <label className="flex items-center justify-between gap-4 cursor-pointer">
+          <span>
+            <span className="block text-white font-medium">Нийтлэх</span>
+            <span className="block text-xs text-gray-400">Унтраавал зөвхөн draft болж, үзэгчдэд харагдахгүй</span>
+          </span>
+          <span className="relative shrink-0">
+            <input type="checkbox" className="peer sr-only" checked={f.published} onChange={(e) => set("published", e.target.checked)} />
+            <span className="block h-7 w-12 rounded-full bg-gray-700 transition-colors peer-checked:bg-theme-primary" />
+            <span className="absolute left-1 top-1 h-5 w-5 rounded-full bg-white transition-transform peer-checked:translate-x-5" />
+          </span>
+        </label>
+      </section>
 
-      <div className="flex gap-3">
-        <button disabled={saving || progress !== null} className="rounded-lg bg-theme-primary text-black font-semibold px-6 py-2 disabled:opacity-50">
-          {saving ? "Хадгалж байна..." : movie ? "Хадгалах" : "Нэмэх"}
-        </button>
-        <button type="button" onClick={() => router.push("/admin")} className="rounded-lg bg-gray-800 text-white px-6 py-2">
-          Болих
-        </button>
+      {/* Үйлдлийн мөр – гар утсан дээр доор нь тогтнож харагдана */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-800 bg-black/85 backdrop-blur-md px-4 py-3">
+        <div className="mx-auto flex max-w-3xl gap-3">
+          <button type="button" onClick={() => router.push("/admin")} className={`${ghostBtn} flex-1 sm:flex-none sm:px-6`}>
+            Болих
+          </button>
+          <button
+            disabled={saving || progress !== null}
+            className="flex-[2] sm:flex-none sm:px-10 rounded-xl bg-theme-primary text-black font-bold py-3 active:scale-95 transition-all disabled:opacity-50"
+          >
+            {saving ? "Хадгалж байна..." : movie ? "Хадгалах" : "Нэмэх"}
+          </button>
+        </div>
       </div>
     </form>
   );
