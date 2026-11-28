@@ -29,6 +29,9 @@ export default async function AdminPage() {
             <Link href="/admin/categories" className="rounded-xl border border-gray-700 bg-gray-900/60 px-4 py-2.5 text-sm text-white hover:border-gray-500">
               Ангилал
             </Link>
+            <Link href="/admin/users" className="rounded-xl border border-gray-700 bg-gray-900/60 px-4 py-2.5 text-sm text-white hover:border-gray-500">
+              Хэрэглэгчид
+            </Link>
             <Link href="/admin/plans" className="rounded-xl border border-gray-700 bg-gray-900/60 px-4 py-2.5 text-sm text-white hover:border-gray-500">
               Багцууд
             </Link>
