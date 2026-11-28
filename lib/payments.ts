@@ -7,7 +7,7 @@ export async function reconcilePayment(wireIntentId: string): Promise<"succeeded
   const db = supabaseAdmin();
   const { data: pay } = await db
     .from("payments")
-    .select("id,plan,amount,status,days")
+    .select("id,plan,amount,status,days,movie_id")
     .eq("wire_payment_intent_id", wireIntentId)
     .maybeSingle();
   if (!pay) return "failed";
@@ -15,8 +15,17 @@ export async function reconcilePayment(wireIntentId: string): Promise<"succeeded
 
   const pi = await wireGetIntent(wireIntentId);
   if (pi.status === "succeeded") {
-    if (pi.amount !== pay.amount || !isPlanId(pay.plan)) {
-      console.error("[wire] amount/plan mismatch", wireIntentId, pi.amount, pay.amount);
+    if (pi.amount !== pay.amount) {
+      console.error("[wire] amount mismatch", wireIntentId, pi.amount, pay.amount);
+      return "failed";
+    }
+    // Нэг киноны худалдан авалт: тухайн киног хэрэглэгчид нээнэ
+    if (pay.plan === "movie") {
+      await db.rpc("fulfill_movie_payment", { p_payment_id: pay.id });
+      return "succeeded";
+    }
+    if (!isPlanId(pay.plan)) {
+      console.error("[wire] plan mismatch", wireIntentId, pay.plan);
       return "failed";
     }
     // Төлбөр үүсэх үед хадгалсан хоногийг ашиглана (admin дараа нь зассан ч өөрчлөгдөхгүй)

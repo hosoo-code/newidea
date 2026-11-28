@@ -7,6 +7,11 @@ import { signPlaybackUrl } from "@/lib/r2";
 import { getCurrentProfile, isPremium } from "@/lib/auth";
 import { isMovieFree } from "@/lib/categories";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { hasPurchasedMovie } from "@/lib/purchases";
+import { recoverRecentPayments } from "@/lib/payments";
+import { MOVIE_PRICE } from "@/lib/plans";
+import PremiumClient from "@/components/premium/PremiumClient";
 
 // Signed URL тул хуудас бүрт шинээр үүснэ (cache хийхгүй)
 export const dynamic = "force-dynamic";
@@ -32,7 +37,10 @@ export default async function FilmDetailPage({ params }: Props) {
   const profile = await getCurrentProfile();
   // "Үнэгүй" ангиллын кино: Premium-гүй, нэвтрээгүй хүн ч үзнэ
   const free = await isMovieFree(movie.category_ids);
-  const allowed = free || isPremium(profile);
+  const purchased = await hasPurchasedMovie(profile?.id, movie.id);
+  const allowed = free || isPremium(profile) || purchased;
+  // Төлсөн ч баталгаажаагүй (webhook ирээгүй) төлбөр байвал Wire-аас шалгаж, эрх нээгдсэн бол хуудсыг шинээр ачаална
+  if (profile && !allowed && movie.video_url && (await recoverRecentPayments(profile.id))) redirect(`/films/${n}`);
   const playUrl = allowed && movie.video_url ? await signPlaybackUrl(movie.video_url) : null;
 
   return (
@@ -76,14 +84,32 @@ export default async function FilmDetailPage({ params }: Props) {
         </div>
 
         {!allowed && movie.video_url ? (
-          <div className="glass-container p-8 text-center space-y-4">
-            <p className="text-white text-lg font-semibold">Энэ киног үзэхэд Premium эрх шаардлагатай</p>
-            <Link
-              href={profile ? "/premium" : "/login?next=/premium"}
-              className="inline-block rounded-lg bg-theme-primary text-black font-semibold px-5 py-2"
-            >
-              {profile ? "Premium авах" : "Нэвтэрч Premium авах"}
-            </Link>
+          <div className="glass-container p-6 sm:p-8 text-center space-y-5 max-w-md mx-auto w-full">
+            <p className="text-white text-lg font-semibold">Энэ киног үзэхийн тулд сонголтоо хийнэ үү</p>
+
+            <div className="space-y-2">
+              <PremiumClient
+                mode="movie"
+                plans={[{ id: "movie", label: movie.title, amount: MOVIE_PRICE, days: 0 }]}
+                extraBody={{ kind: "movie", movieId: movie.id }}
+                loginNext={`/films/${movie.id}`}
+              />
+              <p className="text-xs text-gray-400">Зөвхөн энэ киног, нэг удаагийн төлбөрөөр үргэлж үзнэ.</p>
+            </div>
+
+            <div className="flex items-center gap-3 text-xs text-gray-500">
+              <span className="h-px flex-1 bg-gray-700" /> эсвэл <span className="h-px flex-1 bg-gray-700" />
+            </div>
+
+            <div className="space-y-2">
+              <Link
+                href={profile ? "/premium" : "/login?next=/premium"}
+                className="block rounded-xl border border-theme-primary py-3 font-semibold text-theme-primary active:scale-[0.98] transition-transform"
+              >
+                {profile ? "Premium авч бүх киног үзэх" : "Нэвтэрч Premium авах"}
+              </Link>
+              <p className="text-xs text-gray-400">Бүх киног хязгааргүй үзнэ.</p>
+            </div>
           </div>
         ) : playUrl ? (
           <LocalPlayer url={playUrl} title={movie.title} poster={movie.backdrop_url} movieId={movie.id} viewerId={profile?.id} />

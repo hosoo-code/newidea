@@ -61,7 +61,18 @@ function extract(next: unknown): Pick<Pay, "qrText" | "qrImage" | "links"> {
   return out;
 }
 
-export default function PremiumClient({ plans }: { plans: Plan[] }) {
+export default function PremiumClient({
+  plans,
+  mode = "plans",
+  extraBody,
+  loginNext = "/premium",
+}: {
+  plans: Plan[];
+  mode?: "plans" | "movie"; // "movie": нэг киноны худалдан авалт (plans[0] = {label: киноны нэр, amount})
+  extraBody?: Record<string, unknown>;
+  loginNext?: string;
+}) {
+  const isMovie = mode === "movie";
   const [busy, setBusy] = useState<string | null>(null);
   const [pay, setPay] = useState<Pay | null>(null);
   const [selected, setSelected] = useState<Plan | null>(null);
@@ -90,7 +101,7 @@ export default function PremiumClient({ plans }: { plans: Plan[] }) {
   const finish = (r: Result) => {
     stopTimers();
     setResult(r);
-    if (r === "success") toast.success("Төлбөр амжилттай! Premium идэвхжлээ 🎉");
+    if (r === "success") toast.success(isMovie ? "Төлбөр амжилттай! Кино нээгдлээ 🎉" : "Төлбөр амжилттай! Premium идэвхжлээ 🎉");
   };
 
   const check = async (intentId: string) => {
@@ -179,10 +190,10 @@ export default function PremiumClient({ plans }: { plans: Plan[] }) {
       const res = await fetch("/api/payments/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan }),
+        body: JSON.stringify(isMovie ? { ...extraBody } : { plan, ...extraBody }),
       });
       const json = await res.json();
-      if (res.status === 401) return void (location.href = "/login?next=/premium");
+      if (res.status === 401) return void (location.href = `/login?next=${encodeURIComponent(loginNext)}`);
       if (!res.ok) throw new Error(json.error ?? "Алдаа гарлаа");
       setShowAll(false);
       setSelected(plans.find((x) => x.id === plan) ?? null);
@@ -203,8 +214,18 @@ export default function PremiumClient({ plans }: { plans: Plan[] }) {
 
   return (
     <>
+      {isMovie && plans[0] && (
+        <button
+          type="button"
+          onClick={() => buy(plans[0].id)}
+          disabled={!!busy}
+          className="w-full rounded-xl bg-theme-primary py-3.5 text-base font-bold text-black shadow-lg shadow-yellow-500/10 transition-all active:scale-[0.98] disabled:opacity-50"
+        >
+          {busy ? "..." : `Худалдаж авах · ${plans[0].amount.toLocaleString("en-US")}₮`}
+        </button>
+      )}
       <div className={`grid grid-cols-1 gap-4 ${plans.length >= 3 ? "sm:grid-cols-2" : plans.length === 2 ? "sm:grid-cols-2" : ""}`}>
-        {plans.map((p) => {
+        {(isMovie ? [] : plans).map((p) => {
           const perMonth = Math.round((p.amount / p.days) * 30);
           const best = plans.length > 1 && p.id === bestId;
           return (
@@ -252,9 +273,10 @@ export default function PremiumClient({ plans }: { plans: Plan[] }) {
             {/* Сонгосон багц */}
             <div className="flex items-start justify-between gap-3 mb-4">
               <div>
-                <p className="text-xs text-gray-400">Сонгосон багц</p>
+                <p className="text-xs text-gray-400">{isMovie ? "Кино худалдан авалт" : "Сонгосон багц"}</p>
                 <h3 className="text-lg font-bold text-white">
-                  Premium · {selected?.label}
+                  {isMovie ? "" : "Premium · "}
+                  {selected?.label}
                 </h3>
                 {selected && <p className="text-2xl font-bold text-theme-primary">{selected.amount.toLocaleString("en-US")}₮</p>}
               </div>
@@ -282,10 +304,12 @@ export default function PremiumClient({ plans }: { plans: Plan[] }) {
                 </h4>
                 <p className="text-sm text-gray-400">
                   {result === "success"
-                    ? "Таны Premium эрх идэвхжлээ. Баярлалаа!"
+                    ? isMovie
+                      ? "Киног худалдан авлаа, одоо үзэж болно. Баярлалаа!"
+                      : "Таны Premium эрх идэвхжлээ. Баярлалаа!"
                     : result === "expired"
                       ? "Төлбөрийн хугацаа дууслаа. Дахин оролдоно уу."
-                      : "Төлбөр хийгдсэнгүй. Хэрэв төлсөн бол доорх товчоор дахин шалгана уу, эсвэл Premium хуудсыг дахин нээхэд эрх автоматаар олгогдоно."}
+                      : "Төлбөр хийгдсэнгүй. Хэрэв төлсөн бол доорх товчоор дахин шалгана уу, эсвэл энэ хуудсыг дахин нээхэд эрх автоматаар олгогдоно."}
                 </p>
                 {result !== "success" && (
                   <button

@@ -9,6 +9,7 @@ type Row = {
   days: number | null;
   created_at: string;
   paid_at: string | null;
+  movie?: { title: string } | { title: string }[] | null;
 };
 
 const dt = (iso: string) =>
@@ -42,14 +43,20 @@ export default async function PaymentHistory() {
   const [{ data }, plans] = await Promise.all([
     sb
       .from("payments")
-      .select("id,plan,amount,status,days,created_at,paid_at")
+      .select("id,plan,amount,status,days,created_at,paid_at,movie:movies(title)")
       .eq("status", "succeeded") // зөвхөн амжилттай төлбөрийг харуулна
       .order("created_at", { ascending: false })
       .limit(20),
     getPlans({ includeInactive: true }),
   ]);
   const rows = (data ?? []) as Row[];
-  const label = (id: string) => plans.find((p) => p.id === id)?.label ?? id;
+  const label = (r: Row) => {
+    if (r.plan === "movie") {
+      const m = Array.isArray(r.movie) ? r.movie[0] : r.movie;
+      return `Кино · ${m?.title ?? "худалдан авалт"}`;
+    }
+    return `Premium · ${plans.find((p) => p.id === r.plan)?.label ?? r.plan}`;
+  };
 
   return (
     <section aria-label="Төлбөрийн түүх" className="space-y-3">
@@ -65,10 +72,10 @@ export default async function PaymentHistory() {
             return (
               <li key={r.id} className="flex items-center justify-between gap-3 p-4">
                 <div className="min-w-0">
-                  <p className="font-medium text-white">Premium · {label(r.plan)}</p>
+                  <p className="font-medium text-white">{label(r)}</p>
                   <p className="text-xs text-gray-400">
                     {dt(r.paid_at ?? r.created_at)}
-                    {r.status === "succeeded" && r.days ? ` · +${r.days} хоног` : ""}
+                    {r.status === "succeeded" && r.days && r.plan !== "movie" ? ` · +${r.days} хоног` : ""}
                   </p>
                 </div>
                 <div className="shrink-0 text-right">

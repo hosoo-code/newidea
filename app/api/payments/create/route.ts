@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { getCurrentProfile } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
-import { getPlan } from "@/lib/plans";
+import { getPlan, MOVIE_PRICE } from "@/lib/plans";
+import { hasPurchasedMovie } from "@/lib/purchases";
+import { isPremium } from "@/lib/auth";
+import { isMovieFree } from "@/lib/categories";
 import { WireError, wireConfirmIntent, wireCreateIntent } from "@/lib/wire";
 import { getClientIp, rateLimit } from "@/lib/rateLimit";
 
@@ -13,21 +16,39 @@ export async function POST(req: NextRequest) {
   const rl = await rateLimit(`pay:${profile.id}:${getClientIp(req)}`, 10, 10 * 60);
   if (!rl.allowed) return NextResponse.json({ error: "Хэт олон оролдлого" }, { status: 429 });
 
-  const { plan } = await req.json().catch(() => ({ plan: null }));
-  const selected = await getPlan(plan);
-  if (!selected) return NextResponse.json({ error: "Багц буруу байна" }, { status: 400 });
-  const { amount, days } = selected;
-
+  const body = await req.json().catch(() => ({}));
   const db = supabaseAdmin();
   const paymentId = randomUUID();
-  const { error: insErr } = await db
-    .from("payments")
-    .insert({ id: paymentId, user_id: profile.id, plan: selected.id, amount, days });
+
+  let amount: number;
+  let row: Record<string, unknown>;
+  let meta: Record<string, string>;
+
+  if (body?.kind === "movie") {
+    // Нэг киног тусад нь худалдаж авах
+    const movieId = Number(body.movieId);
+    if (!Number.isInteger(movieId) || movieId <= 0) return NextResponse.json({ error: "Кино буруу байна" }, { status: 400 });
+    const { data: movie } = await db.from("movies").select("id,published,category_ids").eq("id", movieId).maybeSingle();
+    if (!movie || !movie.published) return NextResponse.json({ error: "Кино олдсонгүй" }, { status: 404 });
+    if (isPremium(profile) || (await isMovieFree(movie.category_ids)) || (await hasPurchasedMovie(profile.id, movieId)))
+      return NextResponse.json({ error: "Танд энэ киног үзэх эрх аль хэдийн байна" }, { status: 409 });
+    amount = MOVIE_PRICE;
+    row = { id: paymentId, user_id: profile.id, plan: "movie", amount, movie_id: movieId };
+    meta = { payment_id: paymentId, user_id: profile.id, plan: "movie", movie_id: String(movieId) };
+  } else {
+    const selected = await getPlan(body?.plan);
+    if (!selected) return NextResponse.json({ error: "Багц буруу байна" }, { status: 400 });
+    amount = selected.amount;
+    row = { id: paymentId, user_id: profile.id, plan: selected.id, amount, days: selected.days };
+    meta = { payment_id: paymentId, user_id: profile.id, plan: selected.id };
+  }
+
+  const { error: insErr } = await db.from("payments").insert(row);
   if (insErr) return NextResponse.json({ error: "Төлбөр үүсгэж чадсангүй" }, { status: 500 });
 
   try {
     const created = await wireCreateIntent(
-      { amount, metadata: { payment_id: paymentId, user_id: profile.id, plan: selected.id } },
+      { amount, metadata: meta },
       `create-${paymentId}`
     );
     await db.from("payments").update({ wire_payment_intent_id: created.id }).eq("id", paymentId);

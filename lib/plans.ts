@@ -46,3 +46,6 @@ export async function getPlan(id: unknown): Promise<Plan | null> {
   if (!isPlanId(id)) return null;
   return (await getPlans()).find((p) => p.id === id) ?? null;
 }
+
+// Нэг киног тусад нь худалдаж авах үнэ (₮). Env-ээр солих боломжтой.
+export const MOVIE_PRICE = Number(process.env.MOVIE_PRICE) || 4000;
