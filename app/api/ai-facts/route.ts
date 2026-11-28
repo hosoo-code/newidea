@@ -43,19 +43,19 @@ function getCorsHeaders(request: NextRequest): Record<string, string> {
  */
 function validateMovieData(data: unknown): { valid: boolean; error?: string } {
   if (!data || typeof data !== "object") {
-    return { valid: false, error: "Invalid request body" };
+    return { valid: false, error: "Хүсэлт буруу байна" };
   }
 
   const movieData = data as Record<string, unknown>;
   const { title, name } = movieData;
 
   if (!title && !name) {
-    return { valid: false, error: "Title or name is required" };
+    return { valid: false, error: "Гарчиг эсвэл нэр шаардлагатай" };
   }
 
   const movieTitle = title || name;
   if (typeof movieTitle !== "string" || movieTitle.trim().length < 2) {
-    return { valid: false, error: "Title must be at least 2 characters" };
+    return { valid: false, error: "Гарчиг дор хаяж 2 тэмдэгт байх ёстой" };
   }
 
   return { valid: true };
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
     if (!process.env.GEMINI_API_KEY) {
       securityLogger.error("GEMINI_API_KEY not configured");
       return NextResponse.json(
-        { error: "AI service not configured. Please contact administrator.", success: false },
+        { error: "AI үйлчилгээ тохируулаагүй байна. Админтай холбогдоно уу.", success: false },
         { status: 503, headers: corsHeaders }
       );
     }
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
       });
 
       return NextResponse.json(
-        { error: "Rate limit exceeded. Please try again later.", success: false },
+        { error: "Хэт олон хүсэлт илгээлээ. Түр хүлээгээд дахин оролдоно уу.", success: false },
         {
           status: 429,
           headers: {
@@ -169,7 +169,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(
-      { error: "Internal server error. Please try again later.", success: false },
+      { error: "Серверийн алдаа гарлаа. Дараа дахин оролдоно уу.", success: false },
       { status: 500, headers: corsHeaders }
     );
   }

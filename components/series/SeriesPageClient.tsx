@@ -119,7 +119,7 @@ const SeriesPageClient = () => {
         type="tv"
       />
       {/* Loading State */}
-      {isLoading && <PageLoading>Loading TV shows, please wait...</PageLoading>}
+      {isLoading && <PageLoading>Цувралуудыг ачаалж байна, түр хүлээнэ үү...</PageLoading>}
       {/* Series Display */}
       {!isLoading && series.length > 0 && (
         <TvDisplay
@@ -130,7 +130,7 @@ const SeriesPageClient = () => {
       )}
       {/* Empty State */}
       {!isLoading && series.length === 0 && (
-        <PageEmpty>No TV shows found</PageEmpty>
+        <PageEmpty>Цуврал олдсонгүй</PageEmpty>
       )}
     </>
   );

@@ -12,7 +12,7 @@ const SeasonDisplay = ({ SeasonCards, TvDetails }: SeasonDisplayProps) => {
   return (
     <>
       <h1 className="text-white text-xl sm:text-2xl text-center my-2">
-        All Seasons
+        Бүх улирал
       </h1>
       <div className="w-full flex justify-center mt-3 mb-6">
           <span className="w-4/5 bg-grey h-0.5"></span>

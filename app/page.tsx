@@ -5,7 +5,7 @@ import HomeHero from "@/components/local/HomeHero";
 import MovieRow from "@/components/local/MovieRow";
 
 export const metadata: Metadata = {
-  title: "Home | Kino Mangas",
+  title: "Нүүр | Kino Mangas",
   description: "Kino Mangas дээр нэмэгдсэн шинэ болон шилдэг кинонууд.",
 };
 

@@ -118,7 +118,7 @@ const MoviePageClient = () => {
       />
 
       {/* Loading State */}
-      {isLoading && <PageLoading>Loading movies, please wait...</PageLoading>}
+      {isLoading && <PageLoading>Кинонуудыг ачаалж байна, түр хүлээнэ үү...</PageLoading>}
 
       {/* Movies Display */}
       {!isLoading && movies.length > 0 && (
@@ -131,7 +131,7 @@ const MoviePageClient = () => {
 
       {/* Empty State */}
       {!isLoading && movies.length === 0 && (
-        <PageEmpty>No movies found</PageEmpty>
+        <PageEmpty>Кино олдсонгүй</PageEmpty>
       )}
     </>
   );

@@ -61,11 +61,11 @@ export function useAIFacts(): UseAIFactsReturn {
         setFacts(data.facts);
         setHasGenerated(true);
       } else {
-        throw new Error("No facts received from AI");
+        throw new Error("AI-аас баримт ирсэнгүй");
       }
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "Unknown error occurred";
+        err instanceof Error ? err.message : "Тодорхойгүй алдаа гарлаа";
       setError(errorMessage);
     } finally {
       setIsLoading(false);

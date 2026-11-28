@@ -3,9 +3,9 @@ import InfoNotFound from "@/components/not-found/InfoNotFound";
 import TvInfo from "@/components/series/TvInfo";
 
 export const metadata: Metadata = {
-  title: "Series | Kino Mangas",
+  title: "Цуврал | Kino Mangas",
   description:
-    "Browse all series available on Kino Mangas. Find trending, top-rated, and new releases.",
+    "Kino Mangas дээрх цувралын дэлгэрэнгүй мэдээлэл.",
 };
 
 interface SeriesDetailsPageProps {

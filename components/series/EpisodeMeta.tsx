@@ -79,7 +79,7 @@ const EpisodeMeta = ({
         {/* Episode Overview */}
         {overview && (
           <div className="pt-2">
-            <h3 className="text-lg font-semibold text-white mb-3">Synopsis</h3>
+            <h3 className="text-lg font-semibold text-white mb-3">Товч агуулга</h3>
             <p className="text-gray-300 leading-relaxed text-sm lg:text-base">
               {overview}
             </p>
@@ -91,10 +91,10 @@ const EpisodeMeta = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs text-gray-400">
               <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-              <span>Season {seasonNumber} • Episode {episodeNumber}</span>
+              <span>{seasonNumber}-р улирал • {episodeNumber}-р анги</span>
             </div>
             <div className="text-xs text-gray-500">
-              HD Quality Available
+              HD чанартай
             </div>
           </div>
         </div>

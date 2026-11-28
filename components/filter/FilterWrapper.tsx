@@ -48,7 +48,7 @@ const FilterWrapper= ({
         setGenres(genresResponse.genres);
       } catch (error) {
         console.error('Failed to fetch genres:', error);
-        onErrorChange('Failed to load filter options');
+        onErrorChange('Шүүлтүүрийн сонголтыг ачаалж чадсангүй');
       }
     };
 
@@ -67,7 +67,7 @@ const FilterWrapper= ({
    */
   const applyFilters = async () => {
     if (!hasActiveFilters) {
-      onErrorChange('Please select at least one filter option');
+      onErrorChange('Дор хаяж нэг шүүлтүүр сонгоно уу');
       return;
     }
 
@@ -91,7 +91,7 @@ const FilterWrapper= ({
           results.push(...movieResults.results);
         } catch (error) {
           console.error('Movie discovery failed:', error);
-          errors.push('Failed to fetch movies');
+          errors.push('Кино ачаалж чадсангүй');
         }
       }
 
@@ -107,7 +107,7 @@ const FilterWrapper= ({
           results.push(...tvResults.results);
         } catch (error) {
           console.error('TV discovery failed:', error);
-          errors.push('Failed to fetch TV shows');
+          errors.push('Цуврал ачаалж чадсангүй');
         }
       }
 
@@ -115,7 +115,7 @@ const FilterWrapper= ({
       if (results.length === 0 && errors.length > 0) {
         onErrorChange(errors.join(', '));
       } else if (results.length === 0) {
-        onErrorChange('No content found matching your filters');
+        onErrorChange('Таны шүүлтүүрт тохирох контент олдсонгүй');
       } else {
         onResultsChange(results);
         if (errors.length > 0) {
@@ -124,7 +124,7 @@ const FilterWrapper= ({
       }
     } catch (error) {
       console.error('Filter application failed:', error);
-      onErrorChange('Failed to apply filters. Please try again.');
+      onErrorChange('Шүүлтүүр хэрэгжүүлж чадсангүй. Дахин оролдоно уу.');
     } finally {
       setIsApplying(false);
       onLoadingChange(false);
@@ -159,8 +159,8 @@ const FilterWrapper= ({
   }));
 
   const mediaTypeOptions = [
-    { value: "movie", label: "Movies" },
-    { value: "tv", label: "TV Shows" },
+    { value: "movie", label: "Кино" },
+    { value: "tv", label: "Цуврал" },
   ];
 
   const yearOptions = Array.from({ length: 30 }, (_, i) => {
@@ -178,8 +178,8 @@ const FilterWrapper= ({
     <div className="glass-container mx-4 my-6 border-gray-700">
       {/* Filter Header */}
       <div className="flex items-center justify-between mb-4 sm:mb-6">
-        <h2 className="text-lg sm:text-xl font-bold text-white">Discover Content</h2>
-        <p className="text-gray-400 text-xs sm:text-sm hidden sm:block">Find movies and TV shows by filters</p>
+        <h2 className="text-lg sm:text-xl font-bold text-white">Контент хайх</h2>
+        <p className="text-gray-400 text-xs sm:text-sm hidden sm:block">Шүүлтүүрээр кино, цуврал олоорой</p>
       </div>
 
       {/* Mobile Layout: 2 columns + centered button */}
@@ -188,60 +188,60 @@ const FilterWrapper= ({
           {/* Genre Filter */}
           <>
             <Label className="filter-label-xs">
-              Genre
+              Төрөл
             </Label>
             <Filter
-              label="Genre"
+              label="Төрөл"
               options={genreOptions}
               value={filters.genre}
               onChange={(value) => handleFilterChange('genre', value)}
               includeReset={true}
-              resetLabel="Any"
+              resetLabel="Бүгд"
             />
           </>
 
           {/* Media Type Filter */}
           <>
             <Label className="filter-label-xs">
-              Type
+              Ангилал
             </Label>
             <Filter
-              label="Type"
+              label="Ангилал"
               options={mediaTypeOptions}
               value={filters.mediaType}
               onChange={(value) => handleFilterChange('mediaType', value)}
               includeReset={true}
-              resetLabel="All"
+              resetLabel="Бүгд"
             />
           </>
 
           {/* Year Filter */}
           <>
             <Label className="filter-label-xs">
-              Year
+              Он
             </Label>
             <Filter
-              label="Year"
+              label="Он"
               options={yearOptions}
               value={filters.year}
               onChange={(value) => handleFilterChange('year', value)}
               includeReset={true}
-              resetLabel="Any"
+              resetLabel="Бүгд"
             />
           </>
 
           {/* Rating Filter */}
           <>
             <Label className="filter-label-xs">
-              Rating
+              Үнэлгээ
             </Label>
             <Filter
-              label="Rating"
+              label="Үнэлгээ"
               options={ratingOptions}
               value={filters.minRating}
               onChange={(value) => handleFilterChange('minRating', value)}
               includeReset={true}
-              resetLabel="Any"
+              resetLabel="Бүгд"
             />
           </>
         </div>
@@ -257,10 +257,10 @@ const FilterWrapper= ({
             {isApplying ? (
               <span className="flex items-center gap-2">
                 <div className="w-3 h-3 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                Finding...
+                Хайж байна...
               </span>
             ) : (
-              'Discover'
+              'Хайх'
             )}
           </Button>
 
@@ -270,8 +270,8 @@ const FilterWrapper= ({
             size="sm"
             variant="outline"
             className="group relative p-2 bg-gradient-to-r from-gray-800/80 to-gray-700/80 backdrop-blur-sm border border-gray-600/50 text-gray-300 hover:from-red-900/20 hover:to-red-800/20 hover:border-red-500/60 hover:text-red-400 hover:shadow-lg hover:shadow-red-500/20 disabled:from-gray-800/40 disabled:to-gray-700/40 disabled:border-gray-700/30 disabled:text-gray-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-110 disabled:hover:scale-100 rounded-lg overflow-hidden"
-            aria-label="Clear all filters"
-            title="Clear all filters"
+            aria-label="Бүх шүүлтүүрийг арилгах"
+            title="Бүх шүүлтүүрийг арилгах"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 to-red-400/0 group-hover:from-red-500/10 group-hover:to-red-400/10 transition-all duration-300" />
             <X className="w-4 h-4 relative z-10 transition-transform duration-200 group-hover:rotate-90" />
@@ -282,7 +282,7 @@ const FilterWrapper= ({
         {hasActiveFilters && (
           <div className="text-center mt-2">
             <div className="text-xs text-primary font-medium">
-              {Object.values(filters).filter(v => v !== "").length} active
+              {Object.values(filters).filter(v => v !== "").length} идэвхтэй
             </div>
           </div>
         )}
@@ -294,60 +294,60 @@ const FilterWrapper= ({
           {/* Genre Filter */}
           <div className="flex-1">
             <Label className="block filter-label-sm mb-2">
-              Genre
+              Төрөл
             </Label>
             <Filter
-              label="Select Genre"
+              label="Төрөл сонгох"
               options={genreOptions}
               value={filters.genre}
               onChange={(value) => handleFilterChange('genre', value)}
               includeReset={true}
-              resetLabel="Any Genre"
+              resetLabel="Бүх төрөл"
             />
           </div>
 
           {/* Media Type Filter */}
           <div className="flex-1">
             <Label className="block filter-label-sm mb-2">
-              Content Type
+              Контентын ангилал
             </Label>
             <Filter
-              label="Select Type"
+              label="Ангилал сонгох"
               options={mediaTypeOptions}
               value={filters.mediaType}
               onChange={(value) => handleFilterChange('mediaType', value)}
               includeReset={true}
-              resetLabel="Movies & TV"
+              resetLabel="Кино ба цуврал"
             />
           </div>
 
           {/* Year Filter */}
           <div className="flex-1">
             <Label className="block filter-label-sm mb-2">
-              Release Year
+              Гарсан он
             </Label>
             <Filter
-              label="Select Year"
+              label="Он сонгох"
               options={yearOptions}
               value={filters.year}
               onChange={(value) => handleFilterChange('year', value)}
               includeReset={true}
-              resetLabel="Any Year"
+              resetLabel="Бүх он"
             />
           </div>
 
           {/* Rating Filter */}
           <div className="flex-1">
             <Label className="block filter-label-sm mb-2">
-              Minimum Rating
+              Доод үнэлгээ
             </Label>
             <Filter
-              label="Select Rating"
+              label="Үнэлгээ сонгох"
               options={ratingOptions}
               value={filters.minRating}
               onChange={(value) => handleFilterChange('minRating', value)}
               includeReset={true}
-              resetLabel="Any Rating"
+              resetLabel="Бүх үнэлгээ"
             />
           </div>
 
@@ -361,10 +361,10 @@ const FilterWrapper= ({
               {isApplying ? (
                 <span className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                  Discovering...
+                  Хайж байна...
                 </span>
               ) : (
-                'Discover'
+                'Хайх'
               )}
             </Button>
 
@@ -373,8 +373,8 @@ const FilterWrapper= ({
               disabled={!hasActiveFilters}
               variant="outline"
               className="group relative p-2.5 bg-gradient-to-r from-gray-800/80 to-gray-700/80 backdrop-blur-sm border border-gray-600/50 text-gray-300 hover:from-red-900/20 hover:to-red-800/20 hover:border-red-500/60 hover:text-red-400 hover:shadow-lg hover:shadow-red-500/20 disabled:from-gray-800/40 disabled:to-gray-700/40 disabled:border-gray-700/30 disabled:text-gray-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-110 disabled:hover:scale-100 rounded-lg overflow-hidden"
-              aria-label="Clear all filters"
-              title="Clear all filters"
+              aria-label="Бүх шүүлтүүрийг арилгах"
+              title="Бүх шүүлтүүрийг арилгах"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 to-red-400/0 group-hover:from-red-500/10 group-hover:to-red-400/10 transition-all duration-300" />
               <X className="w-5 h-5 relative z-10 transition-transform duration-200 group-hover:rotate-90" />
@@ -386,7 +386,7 @@ const FilterWrapper= ({
         {hasActiveFilters && (
           <div className="text-right">
             <div className="text-sm text-primary font-medium">
-              {Object.values(filters).filter(v => v !== "").length} filter(s) active
+              {Object.values(filters).filter(v => v !== "").length} шүүлтүүр идэвхтэй
             </div>
           </div>
         )}

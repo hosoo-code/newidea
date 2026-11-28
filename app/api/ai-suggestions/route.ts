@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
-        { error: "Rate limit exceeded. Please try again later.", success: false },
+        { error: "Хэт олон хүсэлт илгээлээ. Түр хүлээгээд дахин оролдоно уу.", success: false },
         { 
           status: 429,
           headers: {
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
     });
     
     return NextResponse.json(
-      { error: "Internal server error. Please try again later.", success: false },
+      { error: "Серверийн алдаа гарлаа. Дараа дахин оролдоно уу.", success: false },
       { status: 500 }
     );
   }

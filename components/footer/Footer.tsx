@@ -15,7 +15,7 @@ const Footer = () => {
               <Logo size="lg" />
             </div>
             <p className="text-gray-400 text-xs mt-2 text-center md:text-left">
-              Your ultimate movie & series destination
+              Кино, цувралын хамгийн сайхан газар
             </p>
           </div>
 
@@ -23,10 +23,10 @@ const Footer = () => {
           <div className="flex flex-col items-center">
             <div className="flex flex-wrap justify-center gap-6 mb-4">
               {[
-                { href: "/", label: "Home" },
-                { href: "/movie", label: "Movies" },
-                { href: "/series", label: "Series" },
-                { href: "/watchlist", label: "Watchlist" },
+                { href: "/", label: "Нүүр" },
+                { href: "/movie", label: "Кинонууд" },
+                { href: "/series", label: "Цуврал" },
+                { href: "/watchlist", label: "Миний жагсаалт" },
               ].map((item) => (
                 <Link
                   key={item.href}
@@ -41,7 +41,7 @@ const Footer = () => {
 
             {/* Copyright */}
             <div className="flex items-center gap-2 text-center text-gray-400 text-sm">
-              <span>Made with</span>
+              <span>Хайраар бүтээв</span>
               <Heart
                 className="h-4 w-4 text-red-500 fill-current animate-pulse"
                 aria-hidden="true"
@@ -58,7 +58,7 @@ const Footer = () => {
               Powered by TMDB API • Next.js 15 • Tailwind CSS
             </p>
             <p className="text-gray-500 text-xs">
-              All movie data provided by The Movie Database
+              Киноны мэдээллийг The Movie Database (TMDB) нийлүүлсэн
             </p>
           </div>
         </div>

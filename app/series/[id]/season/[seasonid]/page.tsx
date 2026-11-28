@@ -3,9 +3,9 @@ import SeasonNotFound from "@/components/not-found/SeasonNotFound";
 import SeasonInfo from "@/components/series/SeasonInfo";
 
 export const metadata: Metadata = {
-  title: "Season Details | Kino Mangas",
+  title: "Улирлын мэдээлэл | Kino Mangas",
   description:
-    "View detailed information about TV show seasons including episodes, cast, and ratings.",
+    "Цувралын улирлын ангиуд, жүжигчид, үнэлгээний дэлгэрэнгүй мэдээлэл.",
 };
 interface SeasonsDetailsPageProps {
   params: Promise<{

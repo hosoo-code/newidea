@@ -15,11 +15,10 @@ const InfoNotFound = ({ type = "movie" }: InfoNotFoundProps) => {
         <div className="space-y-4">
           <h1 className="text-4xl md:text-6xl font-bold text-gray-400">404</h1>
           <h2 className="text-xl md:text-2xl font-semibold text-white">
-            {type === "movie" ? "Movie" : "TV Show"} Not Found
+            {type === "movie" ? "Кино" : "Цуврал"} олдсонгүй
           </h2>
           <p className="text-gray-400 max-w-md mx-auto">
-            The {type === "movie" ? "movie" : "TV show"} you&apos;re looking for
-            doesn&apos;t exist or has been removed from our database.
+            Таны хайсан {type === "movie" ? "кино" : "цуврал"} байхгүй эсвэл манай сангаас хасагдсан байна.
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4">
@@ -27,11 +26,11 @@ const InfoNotFound = ({ type = "movie" }: InfoNotFoundProps) => {
             onClick={() => window.history.back()}
             className="px-6 py-3 bg-theme-primary text-black font-medium rounded-lg hover:bg-theme-primary/90 transition-colors"
           >
-            Go Back
+            Буцах
           </Button>
-          <Link href={type === "movie" ? "/movie" : "/tv"}>
+          <Link href={type === "movie" ? "/movie" : "/series"}>
             <Button className="px-6 py-3 border border-gray-600 text-white font-medium rounded-lg bg-gray-400/20 hover:bg-gray-600/20 transition-colors">
-              Browse {type === "movie" ? "Movies" : "TV Shows"}
+              {type === "movie" ? "Кинонууд" : "Цувралууд"} үзэх
             </Button>
           </Link>
         </div>

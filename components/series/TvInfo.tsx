@@ -122,7 +122,7 @@ const TvInfo = ({ id }: TvInfoProps) => {
 
   // Loading State - will show until data is successfully loaded
   if (isLoading || !seriesData?.data) {
-    return <InfoLoading>Loading Series Details</InfoLoading>;
+    return <InfoLoading>Цувралын мэдээллийг ачаалж байна</InfoLoading>;
   }
 
   return (
@@ -162,7 +162,7 @@ const TvInfo = ({ id }: TvInfoProps) => {
             <div className="space-y-6">
               <>
                 <h2 className="text-2xl lg:text-3xl font-bold text-white mb-2">
-                  Seasons & Episodes
+                  Улирал ба ангиуд
                 </h2>
                 <div className="w-full h-px bg-gradient-to-r from-primary/50 via-primary to-primary/50" />
               </>

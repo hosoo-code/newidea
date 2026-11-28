@@ -56,7 +56,7 @@ const AsyncResultsSection = ({
 
       {/* Results Display */}
       {!isLoading && displayResults.length > 0 && (
-        <Suspense fallback={<PageLoading>Loading results...</PageLoading>}>
+        <Suspense fallback={<PageLoading>Үр дүнг ачаалж байна...</PageLoading>}>
           <SearchDisplay movies={displayResults} />
         </Suspense>
       )}
@@ -65,11 +65,10 @@ const AsyncResultsSection = ({
       {!isLoading && activeSource === "none" && (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <div className="text-gray-400 text-lg mb-2">
-            Ready to discover amazing content?
+            Сонирхолтой кино, цуврал хайх уу?
           </div>
           <div className="text-gray-500 text-sm">
-            Use the search bar above or apply filters to find movies and TV
-            shows
+            Дээрх хайлтын талбар эсвэл шүүлтүүрийг ашиглан кино, цуврал олоорой
           </div>
         </div>
       )}
@@ -246,7 +245,7 @@ const SearchPageContent = () => {
       />
 
       {/* Async content section with its own Suspense boundary */}
-      <Suspense fallback={<PageLoading>Loading content...</PageLoading>}>
+      <Suspense fallback={<PageLoading>Контентыг ачаалж байна...</PageLoading>}>
         <AsyncResultsSection
           isLoading={isLoading}
           displayResults={displayResults}

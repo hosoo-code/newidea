@@ -86,7 +86,7 @@ const MovieInfo = ({ id }: MovieInfoProps) => {
 
   const MovieDetail = movieData?.data;
   const title =
-    MovieDetail?.title || MovieDetail?.original_title || "Unknown Title";
+    MovieDetail?.title || MovieDetail?.original_title || "Нэргүй";
   const releaseYear = MovieDetail?.release_date
     ? MovieDetail.release_date.slice(0, 4)
     : undefined;
@@ -118,7 +118,7 @@ const MovieInfo = ({ id }: MovieInfoProps) => {
 
   // Loading State - will show until data is successfully loaded
   if (isLoading || !movieData?.data) {
-    return <InfoLoading>Loading Movie Details</InfoLoading>;
+    return <InfoLoading>Киноны мэдээллийг ачаалж байна</InfoLoading>;
   }
 
   return (

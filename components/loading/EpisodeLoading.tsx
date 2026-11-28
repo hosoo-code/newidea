@@ -81,10 +81,10 @@ const EpisodeLoading = ({ className = "" }: EpisodeLoadingProps) => {
                 <div className="flex flex-col items-center gap-4 text-gray-300">
                   <Loader2 className="w-12 h-12 text-primary animate-spin" />
                   <span className="text-lg font-medium">
-                    Loading Episode...
+                    Анги ачаалж байна...
                   </span>
                   <span className="text-sm opacity-75">
-                    Preparing video player
+                    Видео тоглуулагчийг бэлдэж байна
                   </span>
                 </div>
               </div>

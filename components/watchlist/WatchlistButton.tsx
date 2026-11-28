@@ -95,12 +95,12 @@ const WatchlistButton = ({
     return inWatchlist ? (
       <>
         <Check className="mr-2 h-4 w-4" />
-        In Watchlist
+        Жагсаалтад байна
       </>
     ) : (
       <>
         <Plus className="mr-2 h-4 w-4" />
-        Watchlist
+        Жагсаалтад нэмэх
       </>
     );
   };

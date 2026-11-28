@@ -32,10 +32,8 @@ export function formatDate(
     return null;
   }
   
-  // Use provided locale, or fall back to browser locale, or finally to 'en-US'
-  const resolvedLocale = locale || 
-    (typeof navigator !== 'undefined' ? navigator.language : undefined) || 
-    'en-US';
+  // Монгол хэлний огноо (сервер/клиент дээр ижил гарахын тулд тогтмол)
+  const resolvedLocale = locale || 'mn-MN';
   
   try {
     return date.toLocaleDateString(resolvedLocale, options);

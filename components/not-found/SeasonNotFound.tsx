@@ -25,17 +25,16 @@ const SeasonNotFound = ({ seasonId }: SeasonNotFoundProps) => {
           </svg>
         </div>
         <h1 className="text-xl font-semibold text-white mb-2">
-          Season Not Found
+          Улирал олдсонгүй
         </h1>
         <p className="text-sm text-gray-400 mb-3">
-          Could not find season {seasonId} for this series.
+          Энэ цувралын {seasonId}-р улирал олдсонгүй.
         </p>
         <p className="text-xs text-gray-500 mb-4">
-          Please check the URL or try again later. It can also be a server issue
-          sometimes
+          Хаягаа шалгах эсвэл түр хүлээгээд дахин оролдоно уу. Заримдаа сервертэй холбоотой саатал гардаг.
         </p>
         <RefreshButton className="px-4 py-2 bg-primary hover:bg-primary/90 text-black font-medium rounded-lg transition-colors duration-200">
-          Try Again
+          Дахин оролдох
         </RefreshButton>
       </div>
     </div>

@@ -131,7 +131,7 @@ const Hero = () => {
 
   // Early return after all hooks are called
   if (loading) {
-    return <PageLoading>Wait a moment...</PageLoading>;
+    return <PageLoading>Түр хүлээнэ үү...</PageLoading>;
   }
 
   if (!slides || slides.length === 0) {
@@ -232,7 +232,7 @@ const Hero = () => {
       onKeyDown={handleKeyDown}
       tabIndex={0}
       role="region"
-      aria-label="Hero carousel"
+      aria-label="Онцлох контентын слайд"
     >
       <AnimatePresence mode="wait">
         <motion.div
@@ -245,7 +245,7 @@ const Hero = () => {
         >
           <Image
             src={backdropUrl}
-            alt={`${title || "Featured content"} backdrop image`}
+            alt={`${title || "Онцлох контент"} арын зураг`}
             fill
             className="object-cover"
             priority
@@ -295,10 +295,10 @@ const Hero = () => {
               size="default"
               className="bg-theme-primary hover:bg-light-primary text-black font-semibold px-6 py-2"
               onClick={handlePlay}
-              aria-label={`Play ${title}`}
+              aria-label={`${title} үзэх`}
             >
               <Play className="mr-2 h-4 w-4" />
-              Play
+              Үзэх
             </Button>
 
             <WatchlistButton media={currentSlide} variant="hero" />
@@ -319,7 +319,7 @@ const Hero = () => {
                   ? "bg-theme-primary"
                   : "bg-white/50 hover:bg-white/70"
               }`}
-              aria-label={`Go to slide ${index + 1}`}
+              aria-label={`${index + 1}-р слайд руу очих`}
               aria-current={index === currentIndex ? "true" : "false"}
             />
           ))}
@@ -330,7 +330,7 @@ const Hero = () => {
           <button
             onClick={togglePause}
             className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-theme-primary focus:ring-offset-2 focus:ring-offset-black"
-            aria-label={isPaused ? "Resume slideshow" : "Pause slideshow"}
+            aria-label={isPaused ? "Слайдыг үргэлжлүүлэх" : "Слайдыг түр зогсоох"}
             aria-pressed={isPaused}
           >
             {isPaused ? (
@@ -346,7 +346,7 @@ const Hero = () => {
       {isPaused && slides.length > 1 && (
         <div className="absolute top-8 right-8 bg-black/50 text-white px-3 py-1 rounded-full text-sm flex items-center space-x-2 z-20">
           <Pause className="h-3 w-3" />
-          <span>Paused</span>
+          <span>Түр зогссон</span>
         </div>
       )}
 

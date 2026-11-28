@@ -50,7 +50,7 @@ const PaginationWrapper: React.FC<PaginationWrapperProps> = ({
       <Suspense
         fallback={
           <div className="py-8 text-center text-gray-400">
-            Loading pagination...
+            Хуудаслалтыг ачаалж байна...
           </div>
         }
       >

@@ -5,9 +5,9 @@ import SeriesPageClient from "@/components/series/SeriesPageClient";
 import {PageLoading} from "@/components/loading/PageLoading";
 
 export const metadata: Metadata = {
-  title: "All TV Shows | Kino Mangas",
+  title: "Бүх цуврал | Kino Mangas",
   description:
-    "Browse all TV shows available on Kino Mangas. Find trending, top-rated, and new releases.",
+    "Kino Mangas дээрх бүх цуврал. Трэнд, өндөр үнэлгээтэй болон шинэ цувралуудыг үзээрэй.",
 };
 
 export default function SeriesPage() {
@@ -20,7 +20,7 @@ export default function SeriesPage() {
         ]}
       />
 
-      <Suspense fallback={<PageLoading>Loading TV shows...</PageLoading>}>
+      <Suspense fallback={<PageLoading>Цувралуудыг ачаалж байна...</PageLoading>}>
         <SeriesPageClient />
       </Suspense>
     </div>

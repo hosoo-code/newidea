@@ -54,7 +54,7 @@ const WatchListClient = () => {
       <div className="flex items-center justify-center py-16">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading your watchlist...</p>
+          <p className="text-gray-400">Жагсаалтыг ачаалж байна...</p>
         </div>
       </div>
     );
@@ -66,13 +66,13 @@ const WatchListClient = () => {
       <div className="flex items-center justify-center py-16">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4 text-white">
-            Your Watchlist is Empty
+            Таны жагсаалт хоосон байна
           </h2>
           <p className="text-gray-400 mb-8">
-            Start adding movies and TV shows to your watchlist!
+            Үзэхээр төлөвлөсөн кино, цувралаа жагсаалтдаа нэмээрэй!
           </p>
           <Link href="/">
-            <Button>Browse Content</Button>
+            <Button>Контент үзэх</Button>
           </Link>
         </div>
       </div>

@@ -36,9 +36,9 @@ const EpisodeNavigation = ({
     return (
       <div className={`glass-container ${className}`}>
         <div className="text-center py-8">
-          <h3 className="text-lg font-semibold text-white mb-2">Navigation Unavailable</h3>
+          <h3 className="text-lg font-semibold text-white mb-2">Навигаци ашиглах боломжгүй</h3>
           <p className="text-sm text-gray-400">
-            Episode navigation data is incomplete or invalid.
+            Ангийн навигацийн мэдээлэл дутуу эсвэл буруу байна.
           </p>
         </div>
       </div>
@@ -74,9 +74,9 @@ const EpisodeNavigation = ({
       <div className="space-y-3">
         {/* Navigation Header */}
         <div className="text-center">
-          <h3 className="text-base font-semibold text-white mb-1">Episode Navigation</h3>
+          <h3 className="text-base font-semibold text-white mb-1">Ангийн навигаци</h3>
           <p className="text-xs text-gray-400">
-            Season {validCurrentSeason} • Episode {validCurrentEpisode} of {validTotalEpisodes}
+            {validCurrentSeason}-р улирал • {validCurrentEpisode}/{validTotalEpisodes}-р анги
           </p>
         </div>
 
@@ -94,7 +94,7 @@ const EpisodeNavigation = ({
                          h-8 flex items-center justify-center gap-1.5 text-xs"
               >
                 <SkipBack className="w-3 h-3" />
-                <span>No Previous</span>
+                <span>Өмнөх байхгүй</span>
               </Button>
             ) : (
               <Link
@@ -107,7 +107,7 @@ const EpisodeNavigation = ({
                            hover:shadow-lg hover:shadow-primary/20 text-xs"
                 >
                   <SkipBack className="w-3 h-3" />
-                  <span>Prev Season</span>
+                  <span>Өмнөх улирал</span>
                 </Button>
               </Link>
             )
@@ -123,7 +123,7 @@ const EpisodeNavigation = ({
                          hover:shadow-lg hover:shadow-gray-500/20 text-xs"
               >
                 <ChevronLeft className="w-3 h-3" />
-                <span>Prev Episode</span>
+                <span>Өмнөх анги</span>
               </Button>
             </Link>
           )}
@@ -137,7 +137,7 @@ const EpisodeNavigation = ({
                 className="w-full bg-gray-600/30 text-gray-500 cursor-not-allowed border border-gray-600/30 
                          h-8 flex items-center justify-center gap-1.5 text-xs"
               >
-                <span>Complete</span>
+                <span>Дууссан</span>
                 <SkipForward className="w-3 h-3" />
               </Button>
             ) : (
@@ -150,7 +150,7 @@ const EpisodeNavigation = ({
                            smooth-transition hover:scale-105 h-8 flex items-center justify-center gap-1.5
                            hover:shadow-lg hover:shadow-primary/20 text-xs"
                 >
-                  <span>Next Season</span>
+                  <span>Дараагийн улирал</span>
                   <SkipForward className="w-3 h-3" />
                 </Button>
               </Link>
@@ -166,7 +166,7 @@ const EpisodeNavigation = ({
                          smooth-transition hover:scale-105 h-8 flex items-center justify-center gap-1.5
                          hover:shadow-lg hover:shadow-primary/30 text-xs"
               >
-                <span>Next Episode</span>
+                <span>Дараагийн анги</span>
                 <ChevronRight className="w-3 h-3" />
               </Button>
             </Link>

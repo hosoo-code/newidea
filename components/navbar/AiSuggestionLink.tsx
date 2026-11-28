@@ -16,8 +16,8 @@ const AiSuggestionLink = () => {
         type="button"
         onClick={openSuggestionModal}
         className="p-1 rounded-lg bg-gradient-to-r from-theme-primary/20 to-theme-primary/10 hover:from-theme-primary/30 hover:to-theme-primary/20 border border-theme-primary/50 transition-all duration-200 hover:scale-110 group"
-        title="Get AI movie/series suggestion"
-        aria-label="Get AI movie/series suggestion"
+        title="AI-аас кино/цуврал санал болгуулах"
+        aria-label="AI-аас кино/цуврал санал болгуулах"
       >
         <Sparkles className="text-lg text-theme-primary group-hover:animate-pulse transition-colors" />
       </button>

@@ -8,7 +8,7 @@ export async function GET() {
   } catch (error) {
     console.error("Error fetching genres:", error);
     return NextResponse.json(
-      { error: "Failed to fetch genres" },
+      { error: "Төрлүүдийг ачаалж чадсангүй" },
       { status: 500 }
     );
   }

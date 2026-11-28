@@ -3,9 +3,9 @@ import InfoNotFound from "@/components/not-found/InfoNotFound";
 import MovieInfo from "@/components/movie/MovieInfo";
 
 export const metadata: Metadata = {
-  title: "Movie | Kino Mangas",
+  title: "Кино | Kino Mangas",
   description:
-    "Browse all movies available on Kino Mangas. Find trending, top-rated, and new releases.",
+    "Kino Mangas дээрх киноны дэлгэрэнгүй мэдээлэл.",
 };
 
 interface MovieDetailPageProps {

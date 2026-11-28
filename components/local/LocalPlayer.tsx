@@ -338,7 +338,7 @@ export default function LocalPlayer({
   return (
     <div className="glass-container p-4 lg:p-6 select-none">
       <style>{`@media print { .protected-player { display: none !important; } }`}</style>
-      <h2 className="text-xl lg:text-2xl font-bold text-white mb-4">Watch {title}</h2>
+      <h2 className="text-xl lg:text-2xl font-bold text-white mb-4">{title} үзэх</h2>
       <div
         ref={boxRef}
         tabIndex={0}

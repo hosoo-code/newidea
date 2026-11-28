@@ -98,8 +98,8 @@ const SearchBar = ({
             type="text"
             name="search"
             id="search"
-            placeholder="Search for movies, TV shows, actors.."
-            aria-label="Search for movies, TV shows, actors"
+            placeholder="Кино, цуврал, жүжигчин хайх.."
+            aria-label="Кино, цуврал, жүжигчин хайх"
             className="flex-1 bg-transparent text-white placeholder-gray-400 py-3 placeholder:text-xs pr-3 text-base outline-none font-medium"
             onChange={handleTyping}
             onKeyDown={handleKeyDown}
@@ -116,7 +116,7 @@ const SearchBar = ({
               onClick={handleClear}
               onMouseDown={handleButtonMouseDown}
               className="p-2 text-gray-400 hover:text-white transition-colors duration-200 mr-1"
-              aria-label="Clear search"
+              aria-label="Хайлт арилгах"
             >
               <AiOutlineClose className="text-lg" />
             </button>
@@ -125,7 +125,7 @@ const SearchBar = ({
           {/* Search Button */}
           <button
             type="button"
-            aria-label="Search"
+            aria-label="Хайх"
             className="bg-theme-primary hover:bg-light-primary text-black font-bold px-5 py-5 transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={handleSearchClick}
             onMouseDown={handleButtonMouseDown}

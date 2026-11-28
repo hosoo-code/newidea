@@ -35,7 +35,7 @@ const MediaPlayer = ({
         {/* Player Header */}
         <div className="mb-4">
           <h2 className="text-xl lg:text-2xl font-bold text-white mb-2">
-            Watch {title}
+            {title} үзэх
             {type === "tv" && season && episode && (
               <span className="text-primary ml-2 text-lg">
                 S{season}E{episode}
@@ -70,7 +70,7 @@ const MediaPlayer = ({
         {/* Player Footer */}
         <div className="mt-4 text-center">
           <p className="text-gray-400 text-sm">
-            Streaming in high quality • Auto-adjusts to your connection
+            Өндөр чанартай дамжуулалт • Интернэт холболтод автоматаар тохирно
           </p>
         </div>
       </div>

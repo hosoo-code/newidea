@@ -3,9 +3,9 @@ import PageTitle from "@/components/title/PageTitle";
 import WatchListClient from "@/components/watchlist/WatchListClient";
 
 export const metadata: Metadata = {
-  title: "Watchlist | Kino Mangas",
+  title: "Миний жагсаалт | Kino Mangas",
   description:
-    "Browse and manage your personal watchlist of movies and TV shows on Kino Mangas.",
+    "Kino Mangas дээрх өөрийн хадгалсан кино, цувралын жагсаалт.",
 };
 
 export default function WatchlistPage() {
@@ -13,7 +13,7 @@ export default function WatchlistPage() {
     <div className="app-bg-enhanced mt-24">
       <PageTitle
         segments={[
-          { text: "My " },
+          { text: "Миний " },
           { text: "Watch", isPrimary: true },
           { text: "list" },
         ]}

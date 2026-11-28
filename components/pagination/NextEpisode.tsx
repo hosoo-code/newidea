@@ -69,7 +69,7 @@ const NextEpisodeBtn = ({
               : `bg-grey hover:bg-grey/75 text-primary/90`
           }  transition-all  px-3 py-1 flex items-center justify-center rounded font-semibold text-xs md:text-sm gap-1`}
         >
-          <p>Next Season</p>
+          <p>Дараагийн улирал</p>
           <BiSkipNext className="text-lg md:text-2xl" />
         </Link>
       ) : (
@@ -82,7 +82,7 @@ const NextEpisodeBtn = ({
           }`}
           className="bg-grey hover:bg-grey/75 text-primary/90 transition-all px-3 py-1 flex items-center justify-center rounded font-semibold text-xs md:text-sm gap-1"
         >
-          <p>Next Episode</p>
+          <p>Дараагийн анги</p>
           <BiSkipNext className="text-lg md:text-2xl" />
         </Link>
       )}
@@ -108,7 +108,7 @@ const PrevEpisodeBtn = ({ episodeDetails, seriesId }: PrevEpisodeBtnProps) => {
           }  transition-all px-3 py-1 flex items-center justify-center rounded font-semibold text-xs md:text-sm gap-1`}
         >
           <BiSkipPrevious className="text-lg md:text-2xl" />
-          <p>Prev Season</p>
+          <p>Өмнөх улирал</p>
         </Link>
       ) : (
         <Link
@@ -119,7 +119,7 @@ const PrevEpisodeBtn = ({ episodeDetails, seriesId }: PrevEpisodeBtnProps) => {
           className="bg-grey hover:bg-grey/75 text-primary/90 transition-all px-3 py-1 flex items-center justify-center rounded font-semibold text-xs md:text-sm gap-1"
         >
           <BiSkipPrevious className="text-lg md:text-2xl" />
-          <p>Prev Episode</p>
+          <p>Өмнөх анги</p>
         </Link>
       )}
     </>

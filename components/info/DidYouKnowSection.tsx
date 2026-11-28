@@ -104,11 +104,11 @@ const DidYouKnowSection = ({
         setFacts(data.facts);
         setHasGenerated(true);
       } else {
-        throw new Error("No facts received from AI");
+        throw new Error("AI-аас баримт ирсэнгүй");
       }
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "Unknown error occurred";
+        err instanceof Error ? err.message : "Тодорхойгүй алдаа гарлаа";
       setError(errorMessage);
       console.error("❌ Failed to generate AI facts:", err);
     } finally {
@@ -135,7 +135,7 @@ const DidYouKnowSection = ({
               <Lightbulb className="w-5 h-5 text-primary" />
             </div>
             <h3 className="text-lg lg:text-xl font-bold text-white">
-              Did You Know?
+              Та мэдэх үү?
             </h3>
           </div>
 
@@ -143,7 +143,7 @@ const DidYouKnowSection = ({
           <div className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full border border-blue-400/30">
             <Sparkles className="w-3 h-3 text-blue-400" />
             <span className="text-xs text-blue-400 font-medium">
-              AI Powered
+              AI-ээр бүтсэн
             </span>
           </div>
         </div>
@@ -158,13 +158,12 @@ const DidYouKnowSection = ({
               <Sparkles className="w-12 h-12 mx-auto" />
             </div>
             <h4 className="text-white font-semibold text-lg mb-2">
-              Discover Amazing Facts
+              Сонирхолтой баримтууд
             </h4>
             <p className="text-gray-400 text-sm mb-6 max-w-md mx-auto">
-              Get exclusive behind-the-scenes insights, production secrets, cast
-              stories, and fascinating trivia about{" "}
-              <span className="text-primary font-medium">{title}</span> powered
-              by AI.
+              AI ашиглан{" "}
+              <span className="text-primary font-medium">{title}</span>-ийн
+              зураг авалтын нууц, жүжигчдийн түүх болон сонирхолтой баримтуудыг мэдээрэй.
             </p>
             <Button
               onClick={generateFacts}
@@ -174,12 +173,12 @@ const DidYouKnowSection = ({
                          hover:scale-105 hover:shadow-lg hover:shadow-primary/30"
             >
               <Sparkles className="w-4 h-4 mr-2" />
-              Generate AI Facts
+              AI баримт гаргах
             </Button>
             <p className="text-gray-500 text-xs mt-3">
-              Powered by Google Gemini AI. Note that the generated facts may be
-              fictional or based on speculation. <br /> They are not intended for use in
-              any commercial or legal context. Use at your own discretion.
+              Google Gemini AI-аар боловсруулсан. Баримтууд зохиомол эсвэл таамаглал
+              байж болзошгүй. <br /> Худалдаа, хууль эрх зүйн зорилгоор ашиглахыг хориглоно.
+              Өөрийн үүрэгт ашиглана уу.
             </p>
           </div>
         ) : isLoading ? (
@@ -188,7 +187,7 @@ const DidYouKnowSection = ({
             <div className="flex items-center justify-center gap-3 mb-4">
               <RefreshCw className="w-5 h-5 text-primary animate-spin" />
               <span className="text-primary font-medium">
-                Generating fascinating facts...
+                Сонирхолтой баримтуудыг боловсруулж байна...
               </span>
             </div>
             <div className="space-y-3">
@@ -211,7 +210,7 @@ const DidYouKnowSection = ({
             <AlertCircle className="w-8 h-8 text-red-400 mx-auto" />
             <>
               <h4 className="text-red-400 font-medium mb-2">
-                Failed to Generate Facts
+                Баримт гаргаж чадсангүй
               </h4>
               <p className="text-gray-400 text-sm mb-4">{error}</p>
               <div className="flex justify-center gap-3">
@@ -222,7 +221,7 @@ const DidYouKnowSection = ({
                   className="border-primary/40 text-primary hover:bg-primary/10"
                 >
                   <RefreshCw className="w-4 h-4 mr-2" />
-                  Try Again
+                  Дахин оролдох
                 </Button>
                 <Button
                   onClick={resetFacts}
@@ -230,7 +229,7 @@ const DidYouKnowSection = ({
                   size="sm"
                   className="text-gray-400 hover:text-white"
                 >
-                  Reset
+                  Арилгах
                 </Button>
               </div>
             </>
@@ -258,7 +257,7 @@ const DidYouKnowSection = ({
                 disabled={isLoading}
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
-                Generate New Facts
+                Шинэ баримт гаргах
               </Button>
               <Button
                 onClick={resetFacts}
@@ -266,7 +265,7 @@ const DidYouKnowSection = ({
                 size="sm"
                 className="text-gray-400 hover:text-white hover:bg-gray-600/20 transition-colors"
               >
-                Reset
+                Арилгах
               </Button>
             </div>
           </div>

@@ -110,7 +110,7 @@ export function useWatchlist() {
     );
     
     if (existingIndex >= 0) {
-      toast.info('Already in watchlist');
+      toast.info('Жагсаалтад аль хэдийн байна');
       return;
     }
 
@@ -118,7 +118,7 @@ export function useWatchlist() {
     setWatchlist(updated);
     saveWatchlistToStorage(updated);
     
-    toast.success('Added to watchlist');
+    toast.success('Жагсаалтад нэмэгдлээ');
   }, []);
 
   const removeFromWatchlist = useCallback((id: number, type?: 'movie' | 'tv') => {
@@ -134,7 +134,7 @@ export function useWatchlist() {
     setWatchlist(updated);
     saveWatchlistToStorage(updated);
     
-    toast.success('Removed from watchlist');
+    toast.success('Жагсаалтаас хасагдлаа');
   }, []);
 
   const isInWatchlist = useCallback((id: number, type?: 'movie' | 'tv') => {

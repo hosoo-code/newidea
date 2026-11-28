@@ -110,16 +110,15 @@ const CategorySection = ({
           {hasError ? (
             <div className="text-center">
               <p className="text-lg mb-2">
-                Failed to load {mediaType === "movie" ? "movies" : "TV shows"}
+                {mediaType === "movie" ? "Кино" : "Цуврал"} ачаалж чадсангүй
               </p>
               <p className="text-sm">
-                Please check your internet connection and try again
+                Интернэт холболтоо шалгаад дахин оролдоно уу
               </p>
             </div>
           ) : (
             <p className="text-lg">
-              No {mediaType === "movie" ? "movies" : "TV shows"} available at
-              the moment.
+              Одоогоор {mediaType === "movie" ? "кино" : "цуврал"} байхгүй байна.
             </p>
           )}
         </div>
@@ -130,7 +129,7 @@ const CategorySection = ({
           <button
             onClick={scrollLeft}
             className="absolute left-4 top-1/2 -translate-y-1/2 z-30 hidden md:flex items-center justify-center w-10 h-10 bg-black/60 hover:bg-black/80 backdrop-blur-sm rounded-full shadow-lg transition-all duration-300 opacity-0 hover:scale-110 chevron-btn-left border border-white/20"
-            aria-label="Scroll left"
+            aria-label="Зүүн тийш гүйлгэх"
           >
             <ChevronLeft className="w-5 h-5 text-white" />
           </button>
@@ -140,7 +139,7 @@ const CategorySection = ({
           <button
             onClick={scrollRight}
             className="absolute right-4 top-1/2 -translate-y-1/2 z-30 hidden md:flex items-center justify-center w-10 h-10 bg-black/60 hover:bg-black/80 backdrop-blur-sm rounded-full shadow-lg transition-all duration-300 opacity-0 hover:scale-110 chevron-btn-right border border-white/20"
-            aria-label="Scroll right"
+            aria-label="Баруун тийш гүйлгэх"
           >
             <ChevronRight className="w-5 h-5 text-white" />
           </button>

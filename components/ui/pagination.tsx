@@ -12,7 +12,7 @@ function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
     <nav
       role="navigation"
-      aria-label="pagination"
+      aria-label="Хуудаслалт"
       data-slot="pagination"
       className={cn("mx-auto flex w-full justify-center", className)}
       {...props}
@@ -75,7 +75,7 @@ function PaginationPrevious({
 }: React.ComponentProps<typeof PaginationLink>) {
   return (
     <PaginationLink
-      aria-label="Go to previous page"
+      aria-label="Өмнөх хуудас руу очих"
       size="default"
       className={cn(
         "gap-1 px-4 py-2 rounded-xl backdrop-blur-md bg-gray-900/50 border border-gray-700/50 text-white hover:bg-gray-800/70 hover:border-gray-600/80 transition-all duration-300 hover:scale-105 shadow-md",
@@ -84,7 +84,7 @@ function PaginationPrevious({
       {...props}
     >
       <ChevronLeftIcon className="h-4 w-4" />
-      <span className="hidden sm:block">Previous</span>
+      <span className="hidden sm:block">Өмнөх</span>
     </PaginationLink>
   );
 }
@@ -95,7 +95,7 @@ function PaginationNext({
 }: React.ComponentProps<typeof PaginationLink>) {
   return (
     <PaginationLink
-      aria-label="Go to next page"
+      aria-label="Дараах хуудас руу очих"
       size="default"
       className={cn(
         "gap-1 px-4 py-2 rounded-xl backdrop-blur-md bg-gray-900/50 border border-gray-700/50 text-white hover:bg-gray-800/70 hover:border-gray-600/80 transition-all duration-300 hover:scale-105 shadow-md",
@@ -103,7 +103,7 @@ function PaginationNext({
       )}
       {...props}
     >
-      <span className="hidden sm:block">Next</span>
+      <span className="hidden sm:block">Дараах</span>
       <ChevronRightIcon className="h-4 w-4" />
     </PaginationLink>
   );
@@ -124,7 +124,7 @@ function PaginationEllipsis({
       {...props}
     >
       <MoreHorizontalIcon className="size-4" />
-      <span className="sr-only">More pages</span>
+      <span className="sr-only">Бусад хуудас</span>
     </span>
   );
 }

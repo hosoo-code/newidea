@@ -3,9 +3,9 @@ import EpisodeNotFound from "@/components/not-found/EpisodeNotFound";
 import EpisodeInfo from "@/components/series/EpisodeInfo";
 
 export const metadata: Metadata = {
-  title: "Episode | Kino Mangas",
+  title: "Анги | Kino Mangas",
   description:
-    "Watch and explore episode details, cast, crew, and more on Kino Mangas.",
+    "Ангийн дэлгэрэнгүй мэдээлэл, жүжигчид, баг бүрэлдэхүүн.",
 };
 
 interface EpisodeDetailsPageProps {

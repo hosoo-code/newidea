@@ -157,11 +157,11 @@ const AISuggestionModal = ({ isOpen, onClose }: AISuggestionModalProps) => {
     } catch (err) {
       // handle abort separately
       if (err instanceof Error && err.name === "AbortError") {
-        setError("Request timed out. Please try again.");
+        setError("Хугацаа хэтэрлээ. Дахин оролдоно уу.");
         return;
       }
       const errorMessage =
-        err instanceof Error ? err.message : "Unknown error occurred";
+        err instanceof Error ? err.message : "Тодорхойгүй алдаа гарлаа";
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -202,10 +202,10 @@ const AISuggestionModal = ({ isOpen, onClose }: AISuggestionModalProps) => {
         <DialogHeader className="text-center pb-4">
           <DialogTitle className="flex items-center justify-center gap-2 text-xl font-bold bg-gradient-to-r from-theme-primary to-light-primary bg-clip-text text-transparent">
             <Sparkles className="w-5 h-5 text-theme-primary animate-pulse" />
-            AI Curated Pick
+            AI-ын сонголт
           </DialogTitle>
           <DialogDescription className="text-gray-300 text-sm text-center">
-            Discover hidden gems and exceptional stories curated by AI
+            AI-аас сонгосон онцгой кино, цувралыг нээгээрэй
           </DialogDescription>
         </DialogHeader>
 
@@ -219,10 +219,10 @@ const AISuggestionModal = ({ isOpen, onClose }: AISuggestionModalProps) => {
               </div>
               <div className="text-left">
                 <h3 className="text-base font-medium text-gray-200 mb-1">
-                  Curating Your Perfect Watch
+                  Танд тохирох контентыг сонгож байна
                 </h3>
                 <p className="text-sm text-gray-400">
-                  AI is analyzing thousands of hidden gems...
+                  AI олон мянган кино, цувралыг шинжилж байна...
                 </p>
               </div>
             </div>
@@ -233,7 +233,7 @@ const AISuggestionModal = ({ isOpen, onClose }: AISuggestionModalProps) => {
             <div className="text-center py-6">
               <div className="bg-red-900/20 border border-red-800/50 rounded-lg p-4 mb-4">
                 <h3 className="text-base font-medium text-red-300 mb-2">
-                  Unable to Generate Suggestion
+                  Санал гаргаж чадсангүй
                 </h3>
                 <p className="text-red-400 text-sm mb-3">{error}</p>
                 <Button
@@ -243,7 +243,7 @@ const AISuggestionModal = ({ isOpen, onClose }: AISuggestionModalProps) => {
                   className="bg-red-900/30 border-red-700 text-red-300 hover:bg-red-900/50"
                 >
                   <RefreshCw className="w-4 h-4 mr-2" />
-                  Try Again
+                  Дахин оролдох
                 </Button>
               </div>
             </div>
@@ -262,7 +262,7 @@ const AISuggestionModal = ({ isOpen, onClose }: AISuggestionModalProps) => {
                       <Tv className="w-4 h-4 text-theme-primary" />
                     )}
                     <span className="text-xs font-medium text-theme-primary uppercase tracking-wide">
-                      {suggestion.type}
+                      {suggestion.type === "movie" ? "Кино" : "Цуврал"}
                     </span>
                   </div>
                   <h2 className="text-xl font-bold text-white mb-1 leading-tight">
@@ -282,7 +282,7 @@ const AISuggestionModal = ({ isOpen, onClose }: AISuggestionModalProps) => {
                     size="sm"
                   >
                     <Search className="w-3 h-3 mr-2" />
-                    Find This {suggestion.type === "movie" ? "Movie" : "Series"}
+                    Энэ {suggestion.type === "movie" ? "киног" : "цувралыг"} хайх
                   </Button>
                   <Button
                     onClick={generateSuggestion}
@@ -296,7 +296,7 @@ const AISuggestionModal = ({ isOpen, onClose }: AISuggestionModalProps) => {
                         isLoading ? "animate-spin" : ""
                       }`}
                     />
-                    New Pick
+                    Өөр санал
                   </Button>
                 </div>
               </div>
@@ -306,7 +306,7 @@ const AISuggestionModal = ({ isOpen, onClose }: AISuggestionModalProps) => {
                 {/* Overview */}
                 <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700/50">
                   <h3 className="text-xs font-semibold text-gray-300 mb-2 uppercase tracking-wide">
-                    Overview
+                    Товч агуулга
                   </h3>
                   <p className="text-gray-100 leading-relaxed text-sm">
                     {suggestion.overview}
@@ -316,7 +316,7 @@ const AISuggestionModal = ({ isOpen, onClose }: AISuggestionModalProps) => {
                 {/* Reason to Watch */}
                 <div className="bg-theme-primary/10 rounded-lg p-3 border border-theme-primary/20">
                   <h3 className="text-xs font-semibold text-theme-primary mb-2 uppercase tracking-wide">
-                    Why You Should Watch This
+                    Яагаад үзэх ёстой вэ
                   </h3>
                   <p className="text-gray-100 leading-relaxed text-sm">
                     {suggestion.reason}
@@ -331,7 +331,7 @@ const AISuggestionModal = ({ isOpen, onClose }: AISuggestionModalProps) => {
             <div className="text-center text-xs text-gray-500 pt-3 mt-3 border-t border-gray-800/50">
               <span className="flex items-center justify-center gap-1">
                 <Sparkles className="w-3 h-3" />
-                Powered by AI • Curated for cinephiles
+                AI-аар боловсруулсан • Кино сонирхогчдод зориулав
               </span>
             </div>
           )}

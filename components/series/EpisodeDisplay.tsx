@@ -19,7 +19,7 @@ const EpisodeDisplay = ({ EpisodeInfos, seriesId }: EpisodeDisplayProps) => {
       {/* Section Header */}
       <div className="text-center space-y-2 sm:space-y-3 px-4">
         <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
-          All Episodes
+          Бүх анги
         </h2>
         <div className="w-16 sm:w-24 h-0.5 sm:h-1 bg-gradient-to-r from-primary to-blue-500 rounded-full mx-auto"></div>
       </div>

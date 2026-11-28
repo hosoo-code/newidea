@@ -5,9 +5,9 @@ import SearchPageContent from "@/components/search/SearchPageContent";
 import {PageLoading} from "@/components/loading/PageLoading";
 
 export const metadata: Metadata = {
-  title: "Search | Kino Mangas",
+  title: "Хайлт | Kino Mangas",
   description:
-    "Browse all movies and tv shows currently available on Kino Mangas. Find trending, top-rated, and new releases.",
+    "Kino Mangas дээрх кино, цувралаас хайх. Трэнд, өндөр үнэлгээтэй болон шинэ контентыг олоорой.",
 };
 
 export default function SearchPage() {
@@ -19,7 +19,7 @@ export default function SearchPage() {
           { text: " Watch", isPrimary: true },
         ]}
       />
-      <Suspense fallback={<PageLoading>Loading search...</PageLoading>}>
+      <Suspense fallback={<PageLoading>Хайлтыг ачаалж байна...</PageLoading>}>
         <SearchPageContent />
       </Suspense>
     </div>

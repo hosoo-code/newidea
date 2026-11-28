@@ -34,10 +34,10 @@ const MediaFilter = ({
   const [filters, setFilters] = useState<MediaFiltersData>(initialFilters);
   const [genres, setGenres] = useState<TMDBGenre[]>([]);
   const sortOptions: SortOption[] = [
-    { value: "popularity.desc", label: "Most Popular" },
-    { value: "vote_average.desc", label: "Highest Rated" },
-    { value: "release_date.desc", label: "Newest First" },
-    { value: "release_date.asc", label: "Oldest First" },
+    { value: "popularity.desc", label: "Хамгийн алдартай" },
+    { value: "vote_average.desc", label: "Өндөр үнэлгээтэй" },
+    { value: "release_date.desc", label: "Шинэ нь эхэнд" },
+    { value: "release_date.asc", label: "Хуучин нь эхэнд" },
     { value: "title.asc", label: "A-Z" },
     { value: "title.desc", label: "Z-A" },
   ];
@@ -45,17 +45,17 @@ const MediaFilter = ({
 
   if (type === "movie") {
     categoryOptions = [
-      { value: "popular", label: "Popular" },
-      { value: "top_rated", label: "Top Rated" },
-      { value: "now_playing", label: "Now Playing" },
-      { value: "upcoming", label: "Upcoming" },
+      { value: "popular", label: "Алдартай" },
+      { value: "top_rated", label: "Өндөр үнэлгээтэй" },
+      { value: "now_playing", label: "Одоо гарч буй" },
+      { value: "upcoming", label: "Удахгүй гарах" },
     ];
   } else {
     categoryOptions = [
-      { value: "popular", label: "Popular" },
-      { value: "top_rated", label: "Top Rated" },
-      { value: "on_the_air", label: "On The Air" },
-      { value: "trending", label: "Trending" },
+      { value: "popular", label: "Алдартай" },
+      { value: "top_rated", label: "Өндөр үнэлгээтэй" },
+      { value: "on_the_air", label: "Цацагдаж буй" },
+      { value: "trending", label: "Трэнд" },
     ];
   }
   // Fetch genres on mount
@@ -115,7 +115,7 @@ const MediaFilter = ({
         {/* Category: товчлуурууд (гар утсан дээр хажуу тийш гүйлгэнэ) */}
         <div
           role="tablist"
-          aria-label="Category"
+          aria-label="Ангилал"
           className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {categoryOptions.map((c) => {
@@ -142,29 +142,29 @@ const MediaFilter = ({
         {/* Genre / Year / Sort */}
         <div className="grid grid-cols-2 gap-3 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end">
           <div>
-            <span className={fieldLabel}>Genre</span>
+            <span className={fieldLabel}>Төрөл</span>
             <Filter
-              label="Genre"
+              label="Төрөл"
               options={genreOptions}
               value={filters.genre}
               onChange={(value) => handleFilterChange("genre", value)}
-              resetLabel="All genres"
+              resetLabel="Бүх төрөл"
             />
           </div>
           <div>
-            <span className={fieldLabel}>Year</span>
+            <span className={fieldLabel}>Он</span>
             <Filter
-              label="Year"
+              label="Он"
               options={yearOptions}
               value={filters.year}
               onChange={(value) => handleFilterChange("year", value)}
-              resetLabel="Any year"
+              resetLabel="Бүх он"
             />
           </div>
           <div className="col-span-2 md:col-span-1">
-            <span className={fieldLabel}>Sort by</span>
+            <span className={fieldLabel}>Эрэмбэлэх</span>
             <Filter
-              label="Sort"
+              label="Эрэмбэ"
               options={sortOptions}
               value={filters.sortBy}
               onChange={(value) => handleFilterChange("sortBy", value)}

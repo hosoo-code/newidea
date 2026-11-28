@@ -59,7 +59,7 @@ const MediaMeta= ({
             ) : (
               <Tv className="w-4 h-4" />
             )}
-            {type === "movie" ? "Movie" : "TV Series"}
+            {type === "movie" ? "Кино" : "Цуврал"}
           </div>
           
           <WatchlistButton media={media} variant="default" />
@@ -82,7 +82,7 @@ const MediaMeta= ({
           {type === "movie" && runtime && (
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-primary" />
-              <span className="font-medium">{runtime} min</span>
+              <span className="font-medium">{runtime} мин</span>
             </div>
           )}
 
@@ -90,7 +90,7 @@ const MediaMeta= ({
             <div className="flex items-center gap-2">
               <Tv className="w-4 h-4 text-primary" />
               <span className="font-medium">
-                {seasons} Season{seasons !== 1 ? "s" : ""}
+                {seasons} улирал
               </span>
             </div>
           )}
@@ -99,7 +99,7 @@ const MediaMeta= ({
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-primary" />
               <span className="font-medium">
-                {episodes} Episode{episodes !== 1 ? "s" : ""}
+                {episodes} анги
               </span>
             </div>
           )}
@@ -138,7 +138,7 @@ const MediaMeta= ({
         {/* Overview */}
         {overview && (
           <div className="pt-2">
-            <h3 className="text-lg font-semibold text-white mb-3">Overview</h3>
+            <h3 className="text-lg font-semibold text-white mb-3">Товч агуулга</h3>
             <p className="text-gray-300 leading-relaxed text-sm">{overview}</p>
           </div>
         )}

@@ -5,9 +5,9 @@ import MoviePageClient from "@/components/movie/MoviePageClient";
 import {PageLoading} from "@/components/loading/PageLoading";
 
 export const metadata: Metadata = {
-  title: "All Movies | Kino Mangas",
+  title: "Бүх кинонууд | Kino Mangas",
   description:
-    "Browse all movies available on Kino Mangas. Find trending, top-rated, and new releases.",
+    "Kino Mangas дээрх бүх кино. Трэнд, өндөр үнэлгээтэй болон шинэ кинонуудыг үзээрэй.",
 };
 
 export default function MoviePage() {
@@ -17,7 +17,7 @@ export default function MoviePage() {
         segments={[{ text: "All" }, { text: " Movies", isPrimary: true }]}
       />
 
-      <Suspense fallback={<PageLoading>Loading movies...</PageLoading>}>
+      <Suspense fallback={<PageLoading>Кинонуудыг ачаалж байна...</PageLoading>}>
         <MoviePageClient />
       </Suspense>
     </div>
