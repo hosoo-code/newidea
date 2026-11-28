@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Play, Pause, RotateCcw, RotateCw, Volume2, VolumeX, Maximize, Minimize, Loader2 } from "lucide-react";
+import { Play, Pause, RotateCcw, RotateCw, Volume2, VolumeX, Maximize, Minimize, Loader2, ExternalLink } from "lucide-react";
 
 // ⚠️ Эдгээр нь зөвхөн саад (deterrent). Утасны камер, гадны төхөөрөмж, зарим screen recorder-ийг
 // браузераас бүрэн хориглох боломжгүй. Бодит хамгаалалт = DRM (Widevine/FairPlay).
@@ -474,6 +474,22 @@ export default function LocalPlayer({
           />
         )}
       </div>
+
+      {/* Embed (iframe) линк: видео энд нээгдэхгүй/удаан байвал шууд линк рүү нь орж үзнэ.
+          Файл (mp4/m3u8) үед хамгаалалт (watermark) алгасагдахгүйн тулд харуулахгүй. */}
+      {!isFile && /^https?:\/\//i.test(url) && (
+        <div className="mt-3 space-y-1 text-center">
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 rounded-xl bg-theme-primary py-3 font-semibold text-black active:scale-[0.98] transition-transform"
+          >
+            <ExternalLink className="h-5 w-5" /> Шууд линкээр үзэх
+          </a>
+          <p className="text-xs text-gray-400">Видео дээр нээгдэхгүй бол энэ товчийг дарж шинэ цонхонд үзнэ үү.</p>
+        </div>
+      )}
     </div>
   );
 }
