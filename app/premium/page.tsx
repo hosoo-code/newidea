@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentProfile, isPremium } from "@/lib/auth";
 import { recoverRecentPayments } from "@/lib/payments";
+import { displayIdentity } from "@/lib/phone";
 import { getPlans } from "@/lib/plans";
 import { formatDate, daysLeft } from "@/lib/format";
 import PremiumClient from "@/components/premium/PremiumClient";
@@ -47,7 +48,7 @@ export default async function PremiumPage() {
             <section aria-label="Миний эрх" className="flex items-center justify-between gap-4 rounded-2xl border border-gray-800 bg-gray-900/50 p-4 sm:p-5">
               <div className="min-w-0">
                 <p className="text-xs text-gray-400">Нэвтэрсэн</p>
-                <p className="truncate text-white font-medium">{profile.email ?? "—"}</p>
+                <p className="truncate text-white font-medium">{displayIdentity(profile.email)}</p>
                 <p className="mt-1 text-xs text-gray-400">
                   {isAdmin
                     ? "Хугацаагүй эрх (admin)"

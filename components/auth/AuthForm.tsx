@@ -3,10 +3,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { supabaseBrowser } from "@/lib/supabaseBrowser";
+import { normalizePhone, phoneToEmail } from "@/lib/phone";
 
 export default function AuthForm({ next }: { next: string }) {
   const [mode, setMode] = useState<"in" | "up">("in");
-  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -25,26 +26,29 @@ export default function AuthForm({ next }: { next: string }) {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    const p = normalizePhone(phone);
+    if (!p) {
+      toast.error("Утасны дугаар буруу байна (8 оронтой, жишээ: 99112233)");
+      return;
+    }
+    const email = phoneToEmail(p);
     setLoading(true);
     const sb = supabaseBrowser();
     try {
       if (mode === "in") {
         const { error } = await sb.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        if (error) throw new Error(error.message === "Invalid login credentials" ? "Дугаар эсвэл нууц үг буруу байна" : error.message);
         router.push(next);
         router.refresh();
       } else {
-        const { data, error } = await sb.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}` },
-        });
-        if (error) throw error;
+        const { data, error } = await sb.auth.signUp({ email, password });
+        if (error) throw new Error(/already registered/i.test(error.message) ? "Энэ дугаар бүртгэлтэй байна. Нэвтэрнэ үү" : error.message);
         if (data.session) {
           router.push(next);
           router.refresh();
         } else {
-          toast.success("Имэйлээ шалгаад баталгаажуулах холбоос дээр дарна уу");
+          // Supabase дээр "Confirm email" асаалттай байвал session ирэхгүй
+          toast.error("Бүртгэл үүссэн ч нэвтэрсэнгүй. Supabase → Auth → Providers → Email → 'Confirm email'-ийг унтраана уу.");
         }
       }
     } catch (err) {
@@ -75,16 +79,19 @@ export default function AuthForm({ next }: { next: string }) {
         <span className="h-px flex-1 bg-gray-700" /> эсвэл <span className="h-px flex-1 bg-gray-700" />
       </div>
       <input
-        type="email"
+        type="tel"
+        inputMode="numeric"
+        autoComplete="tel"
         required
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Имэйл"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        placeholder="Утасны дугаар (99112233)"
         autoFocus
         className="w-full rounded-lg bg-gray-900 border border-gray-700 px-3 py-2 text-white outline-none focus:border-theme-primary"
       />
       <input
         type="password"
+        autoComplete={mode === "in" ? "current-password" : "new-password"}
         required
         minLength={6}
         value={password}
@@ -93,7 +100,7 @@ export default function AuthForm({ next }: { next: string }) {
         className="w-full rounded-lg bg-gray-900 border border-gray-700 px-3 py-2 text-white outline-none focus:border-theme-primary"
       />
       <button
-        disabled={loading || !email || !password}
+        disabled={loading || !phone || !password}
         className="w-full rounded-lg bg-theme-primary text-black font-semibold py-2 disabled:opacity-50"
       >
         {loading ? "..." : mode === "in" ? "Нэвтрэх" : "Бүртгүүлэх"}
