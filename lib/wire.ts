@@ -44,22 +44,30 @@ async function wire<T>(method: "GET" | "POST", path: string, body?: unknown, ide
   return json as T;
 }
 
-export const wireCreateIntent = (
+// Банкны апп дээр "Гүйлгээний утга" болж харагдах текст (env-ээр солих боломжтой)
+export const PAYMENT_DESCRIPTION = process.env.PAYMENT_DESCRIPTION || "kinomangas premium";
+
+export const wireCreateIntent = async (
   p: { amount: number; metadata: Record<string, string> },
   idemKey: string
 ) => {
   const ops = process.env.WIRE_OPERATORS?.split(",").map((s) => s.trim()).filter(Boolean);
-  return wire<WirePaymentIntent>(
-    "POST",
-    "/v1/payment_intents",
-    {
-      amount: p.amount,
-      currency: "MNT",
-      metadata: p.metadata,
-      ...(ops?.length ? { allowed_operators: ops } : {}), // хоосон бол project дээр идэвхтэй operator-уудаар
-    },
-    idemKey
-  );
+  const base = {
+    amount: p.amount,
+    currency: "MNT",
+    metadata: p.metadata,
+    ...(ops?.length ? { allowed_operators: ops } : {}), // хоосон бол project дээр идэвхтэй operator-уудаар
+  };
+  try {
+    return await wire<WirePaymentIntent>("POST", "/v1/payment_intents", { ...base, description: PAYMENT_DESCRIPTION }, idemKey);
+  } catch (e) {
+    // Wire `description` талбарыг хүлээн авахгүй бол (400/422) төлбөр тасалдахгүйн тулд оруулахгүйгээр дахин оролдоно
+    if (e instanceof WireError && (e.status === 400 || e.status === 422)) {
+      console.warn("[wire] description талбар татгалзагдлаа, оруулахгүйгээр дахин оролдож байна:", e.message);
+      return wire<WirePaymentIntent>("POST", "/v1/payment_intents", base, `${idemKey}-nodesc`);
+    }
+    throw e;
+  }
 };
 
 export const wireConfirmIntent = (id: string, idemKey: string) =>
