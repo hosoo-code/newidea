@@ -57,10 +57,8 @@ export default function AuthForm({ next }: { next: string }) {
 
   return (
     <div className="w-full max-w-sm">
-      <div className="mb-6 flex flex-col items-center text-center">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="Kino Mangas" className="h-24 w-auto drop-shadow-[0_0_24px_rgba(250,204,21,0.25)]" />
-        <h1 className="mt-3 text-2xl font-extrabold text-white">{mode === "in" ? "Тавтай морил" : "Бүртгэл үүсгэх"}</h1>
+      <div className="mb-5 text-center">
+        <h1 className="text-2xl font-extrabold text-white">{mode === "in" ? "Тавтай морил" : "Бүртгэл үүсгэх"}</h1>
         <p className="mt-1 text-sm text-gray-400">
           {mode === "in" ? "Дугаар болон 4 оронтой PIN кодоо оруулна уу" : "Дугаараа оруулаад 4 оронтой PIN код зохио"}
         </p>
@@ -95,7 +93,7 @@ export default function AuthForm({ next }: { next: string }) {
               Утасны дугаар
             </label>
             <div className="flex overflow-hidden rounded-xl border border-gray-700 bg-gray-900/80 transition-all focus-within:border-theme-primary focus-within:ring-2 focus-within:ring-theme-primary/30">
-              <span className="flex items-center border-r border-gray-700 bg-black/30 px-3 text-sm font-semibold text-gray-300">🇲🇳 +976</span>
+              <span className="flex shrink-0 items-center whitespace-nowrap border-r border-gray-700 bg-black/30 px-4 text-base font-semibold text-gray-300">+976</span>
               <input
                 id="phone"
                 type="tel"
@@ -134,7 +132,7 @@ export default function AuthForm({ next }: { next: string }) {
 
           <button
             disabled={loading || !ready || mismatch}
-            className="h-14 w-full rounded-xl bg-theme-primary text-base font-bold text-black shadow-lg shadow-yellow-500/10 transition-all active:scale-[0.98] disabled:opacity-40"
+            className="h-14 w-full rounded-xl bg-theme-primary text-base font-bold text-black shadow-lg shadow-yellow-500/10 transition-all active:scale-[0.98] disabled:bg-gray-700 disabled:text-gray-400 disabled:shadow-none"
           >
             {loading ? "Түр хүлээнэ үү..." : mode === "in" ? "Нэвтрэх" : "Бүртгүүлэх"}
           </button>

@@ -4,9 +4,10 @@ import { supabaseServer } from "@/lib/supabaseServer";
 import { normalizePhone, phoneToEmail } from "@/lib/phone";
 import { isPin, pinPassword } from "@/lib/pin";
 import { getClientIp, rateLimit } from "@/lib/rateLimit";
+import { AUTH_LIMITS as L } from "@/lib/authLimits";
 
 export async function POST(req: NextRequest) {
-  const rl = await rateLimit(`reg:${getClientIp(req)}`, 5, 60 * 60);
+  const rl = await rateLimit(`reg:${getClientIp(req)}`, L.registerPerIp.max, L.registerPerIp.windowSec);
   if (!rl.allowed) return NextResponse.json({ error: "Хэт олон оролдлого. Түр хүлээнэ үү" }, { status: 429 });
 
   const b = await req.json().catch(() => null);

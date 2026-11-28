@@ -4,6 +4,7 @@ import { supabaseServer } from "@/lib/supabaseServer";
 import { PHONE_EMAIL_DOMAIN } from "@/lib/phone";
 import { isPin, pinPassword } from "@/lib/pin";
 import { rateLimit } from "@/lib/rateLimit";
+import { AUTH_LIMITS as L } from "@/lib/authLimits";
 
 // Нэвтэрсэн (session-тэй) хэрэглэгч хуучин PIN-ээ баталгаажуулаад шинэ PIN үүсгэнэ.
 export async function POST(req: NextRequest) {
@@ -17,7 +18,7 @@ export async function POST(req: NextRequest) {
   if (!isPin(b?.oldPin) || !isPin(b?.newPin)) return NextResponse.json({ error: "PIN код 4 оронтой тоо байна" }, { status: 400 });
   if (b.oldPin === b.newPin) return NextResponse.json({ error: "Шинэ PIN хуучнаасаа өөр байх ёстой" }, { status: 400 });
 
-  const rl = await rateLimit(`pinchg:${user.id}`, 5, 15 * 60);
+  const rl = await rateLimit(`pinchg:${user.id}`, L.pinChangePerUser.max, L.pinChangePerUser.windowSec);
   if (!rl.allowed) return NextResponse.json({ error: "Хэт олон оролдлого. 15 минутын дараа дахин оролдоно уу" }, { status: 429 });
 
   try {
