@@ -3,7 +3,7 @@ import { supabaseServer } from "@/lib/supabaseServer";
 import { normalizePhone, phoneToEmail } from "@/lib/phone";
 import { isPin, pinPassword } from "@/lib/pin";
 import { getClientIp, rateLimit } from "@/lib/rateLimit";
-import { AUTH_LIMITS as L } from "@/lib/authLimits";
+import { AUTH_LIMITS as L, waitText } from "@/lib/authLimits";
 
 // 4 оронтой PIN нь 10,000 хувилбартай тул brute-force-оос сэргийлж дугаар болон IP тус бүрээр оролдлогыг хязгаарлана.
 export async function POST(req: NextRequest) {
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     rateLimit(`login:ip:${getClientIp(req)}`, L.loginPerIp.max, L.loginPerIp.windowSec),
   ]);
   if (!byPhone.allowed || !byIp.allowed)
-    return NextResponse.json({ error: "Хэт олон оролдлого. 15 минутын дараа дахин оролдоно уу" }, { status: 429 });
+    return NextResponse.json({ error: `Хэт олон оролдлого. ${waitText(byPhone.allowed ? L.loginPerIp.windowSec : L.loginPerPhone.windowSec)} дараа дахин оролдоно уу` }, { status: 429 });
 
   try {
     const { error } = await (await supabaseServer()).auth.signInWithPassword({
