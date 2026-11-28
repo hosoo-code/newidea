@@ -43,6 +43,7 @@ export default async function PaymentHistory() {
     sb
       .from("payments")
       .select("id,plan,amount,status,days,created_at,paid_at")
+      .eq("status", "succeeded") // зөвхөн амжилттай төлбөрийг харуулна
       .order("created_at", { ascending: false })
       .limit(20),
     getPlans({ includeInactive: true }),
@@ -55,7 +56,7 @@ export default async function PaymentHistory() {
       <h2 className="text-lg font-bold text-white">Төлбөрийн түүх</h2>
       {rows.length === 0 ? (
         <p className="rounded-2xl border border-gray-800 bg-gray-900/40 p-5 text-center text-sm text-gray-400">
-          Төлбөр хийгдээгүй байна.
+          Амжилттай төлбөр байхгүй байна.
         </p>
       ) : (
         <ul className="divide-y divide-gray-800 overflow-hidden rounded-2xl border border-gray-800 bg-gray-900/50">
