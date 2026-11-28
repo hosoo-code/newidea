@@ -1,7 +1,8 @@
 import { getCurrentProfile, isPremium } from "@/lib/auth";
 import { getPlans } from "@/lib/plans";
-import { formatDate } from "@/lib/format";
+import { formatDate, daysLeft } from "@/lib/format";
 import PremiumClient from "@/components/premium/PremiumClient";
+import PaymentHistory from "@/components/premium/PaymentHistory";
 import MediaDetailLayout from "@/components/layout/MediaDetailLayout";
 import Link from "next/link";
 
@@ -45,7 +46,7 @@ export default async function PremiumPage() {
                   {isAdmin
                     ? "Хугацаагүй эрх (admin)"
                     : until
-                      ? `${active ? "Дуусах огноо" : "Дууссан"}: ${formatDate(until)}`
+                      ? `${active ? "Дуусах огноо" : "Дууссан"}: ${formatDate(until)}${active ? ` (${daysLeft(until)} хоног үлдсэн)` : ""}`
                       : "Premium идэвхжээгүй"}
                 </p>
               </div>
@@ -69,6 +70,8 @@ export default async function PremiumPage() {
             ) : (
               <p className="text-center text-gray-400">Одоогоор худалдаалагдаж буй багц алга.</p>
             )}
+
+            <PaymentHistory />
           </>
         )}
       </div>
