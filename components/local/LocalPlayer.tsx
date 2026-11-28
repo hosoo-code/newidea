@@ -109,7 +109,6 @@ export default function LocalPlayer({
   const [buffering, setBuffering] = useState(false);
   const [muted, setMuted] = useState(false);
   const [volume, setVolume] = useState(1);
-  const [showVol, setShowVol] = useState(false); // утсан дээр дууны slider-ийн popup
   const [speed, setSpeed] = useState(1);
   const [fs, setFs] = useState(false);
   const [ratio, setRatio] = useState(16 / 9); // видеоны жинхэнэ харьцаа (metadata ирэхэд шинэчлэгдэнэ)
@@ -203,6 +202,11 @@ export default function LocalPlayer({
   useEffect(() => {
     const v = videoRef.current;
     if (!isFile || !v) return;
+    // Утас/таблет дээр дууг төхөөрөмжийн товч (hardware) удирдана: видеоны дууг 100% дээр үлдээнэ
+    if (window.matchMedia("(pointer: coarse)").matches) {
+      v.volume = 1;
+      return;
+    }
     try {
       const saved = localStorage.getItem("km:vol");
       if (saved !== null) {
@@ -418,12 +422,9 @@ export default function LocalPlayer({
                   <button type="button" onClick={cycleSpeed} aria-label="Хурд" className={`${btn} text-xs font-bold min-w-[44px]`}>
                     {speed}x
                   </button>
-                  {/* Дуу: desktop дээр mute товч + slider, утсан дээр товшихад slider popup гарна */}
+                  {/* Дуу: компьютер дээр mute + slider; утсан дээр зөвхөн mute (дууг утасны товч удирдана) */}
                   <div className="relative flex items-center">
-                    <button type="button" onClick={toggleMute} aria-label="Дуу хаах/нээх" className={`${btn} hidden sm:inline-flex`}>
-                      {muted || volume === 0 ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-                    </button>
-                    <button type="button" onClick={() => { setShowVol((x) => !x); wake(); }} aria-label="Дууны түвшин" className={`${btn} sm:hidden`}>
+                    <button type="button" onClick={toggleMute} aria-label="Дуу хаах/нээх" className={btn}>
                       {muted || volume === 0 ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
                     </button>
                     <input
@@ -431,21 +432,8 @@ export default function LocalPlayer({
                       value={muted ? 0 : volume}
                       onChange={(e) => changeVolume(Number(e.target.value))}
                       aria-label="Дууны түвшин"
-                      className="hidden sm:block w-20 h-1 accent-yellow-400 cursor-pointer"
+                      className="hidden sm:block [@media(pointer:coarse)]:hidden w-20 h-1 accent-yellow-400 cursor-pointer"
                     />
-                    {showVol && (
-                      <div className="sm:hidden absolute bottom-full right-0 mb-2 flex items-center gap-2 rounded-xl bg-black/90 border border-gray-700 px-3 py-2">
-                        <button type="button" onClick={() => changeVolume((muted ? 0 : volume) - 0.1)} aria-label="Дуу багасгах" className="h-8 w-8 rounded-full bg-gray-800 text-white text-lg leading-none">−</button>
-                        <input
-                          type="range" min={0} max={1} step={0.05}
-                          value={muted ? 0 : volume}
-                          onChange={(e) => changeVolume(Number(e.target.value))}
-                          aria-label="Дууны түвшин"
-                          className="w-32 h-1 accent-yellow-400"
-                        />
-                        <button type="button" onClick={() => changeVolume((muted ? 0 : volume) + 0.1)} aria-label="Дуу нэмэх" className="h-8 w-8 rounded-full bg-gray-800 text-white text-lg leading-none">+</button>
-                      </div>
-                    )}
                   </div>
                   <button type="button" onClick={toggleFullscreen} aria-label="Бүтэн дэлгэц" className={btn}>
                     {fs ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
