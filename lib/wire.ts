@@ -45,10 +45,10 @@ async function wire<T>(method: "GET" | "POST", path: string, body?: unknown, ide
 }
 
 // Банкны апп дээр "Гүйлгээний утга" болж харагдах текст (env-ээр солих боломжтой)
-export const PAYMENT_DESCRIPTION = process.env.PAYMENT_DESCRIPTION || "kinomangas premium";
+export const PAYMENT_DESCRIPTION = process.env.PAYMENT_DESCRIPTION || "kinomangas";
 
 export const wireCreateIntent = async (
-  p: { amount: number; metadata: Record<string, string> },
+  p: { amount: number; metadata: Record<string, string>; description?: string },
   idemKey: string
 ) => {
   const ops = process.env.WIRE_OPERATORS?.split(",").map((s) => s.trim()).filter(Boolean);
@@ -59,7 +59,7 @@ export const wireCreateIntent = async (
     ...(ops?.length ? { allowed_operators: ops } : {}), // хоосон бол project дээр идэвхтэй operator-уудаар
   };
   try {
-    return await wire<WirePaymentIntent>("POST", "/v1/payment_intents", { ...base, description: PAYMENT_DESCRIPTION }, idemKey);
+    return await wire<WirePaymentIntent>("POST", "/v1/payment_intents", { ...base, description: p.description || PAYMENT_DESCRIPTION }, idemKey);
   } catch (e) {
     // Wire `description` талбарыг хүлээн авахгүй бол (400/422) төлбөр тасалдахгүйн тулд оруулахгүйгээр дахин оролдоно
     if (e instanceof WireError && (e.status === 400 || e.status === 422)) {

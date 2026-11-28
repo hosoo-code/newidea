@@ -9,6 +9,14 @@ import { isMovieFree } from "@/lib/categories";
 import { WireError, wireConfirmIntent, wireCreateIntent } from "@/lib/wire";
 import { getClientIp, rateLimit } from "@/lib/rateLimit";
 
+// Гүйлгээний утга: "kinomangas 1 сарын эрх" гэх мэт
+const PLAN_DESC: Record<string, string> = {
+  month: "1 сарын эрх",
+  quarter: "3 сарын эрх",
+  half: "6 сарын эрх",
+  year: "1 жилийн эрх",
+};
+
 export async function POST(req: NextRequest) {
   const profile = await getCurrentProfile();
   if (!profile) return NextResponse.json({ error: "Эхлээд нэвтэрнэ үү" }, { status: 401 });
@@ -23,6 +31,7 @@ export async function POST(req: NextRequest) {
   let amount: number;
   let row: Record<string, unknown>;
   let meta: Record<string, string>;
+  let description: string; // банкны аппад харагдах гүйлгээний утга
 
   if (body?.kind === "movie") {
     // Нэг киног тусад нь худалдаж авах
@@ -33,12 +42,14 @@ export async function POST(req: NextRequest) {
     if (isPremium(profile) || (await isMovieFree(movie.category_ids)) || (await hasPurchasedMovie(profile.id, movieId)))
       return NextResponse.json({ error: "Танд энэ киног үзэх эрх аль хэдийн байна" }, { status: 409 });
     amount = MOVIE_PRICE;
+    description = "kinomangas 1 кино эрх";
     row = { id: paymentId, user_id: profile.id, plan: "movie", amount, movie_id: movieId };
     meta = { payment_id: paymentId, user_id: profile.id, plan: "movie", movie_id: String(movieId) };
   } else {
     const selected = await getPlan(body?.plan);
     if (!selected) return NextResponse.json({ error: "Багц буруу байна" }, { status: 400 });
     amount = selected.amount;
+    description = `kinomangas ${PLAN_DESC[selected.id] ?? `${selected.label} эрх`}`;
     row = { id: paymentId, user_id: profile.id, plan: selected.id, amount, days: selected.days };
     meta = { payment_id: paymentId, user_id: profile.id, plan: selected.id };
   }
@@ -48,7 +59,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const created = await wireCreateIntent(
-      { amount, metadata: meta },
+      { amount, metadata: meta, description },
       `create-${paymentId}`
     );
     await db.from("payments").update({ wire_payment_intent_id: created.id }).eq("id", paymentId);
