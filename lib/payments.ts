@@ -30,3 +30,23 @@ export async function reconcilePayment(wireIntentId: string): Promise<"succeeded
   }
   return "pending";
 }
+
+// Сүүлийн 3 хоногийн дуусаагүй/амжилтгүй гэж тэмдэглэгдсэн төлбөрүүдийг Wire-аас дахин шалгана.
+// Хэрэглэгч "хугацаа дууссан/амжилтгүй" харсны дараа төлсөн, эсвэл webhook ирээгүй тохиолдолд Premium-ийг сэргээнэ.
+// Шинээр баталгаажсан төлбөр байвал true.
+export async function recoverRecentPayments(userId: string): Promise<boolean> {
+  const since = new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString();
+  const { data } = await supabaseAdmin()
+    .from("payments")
+    .select("wire_payment_intent_id")
+    .eq("user_id", userId)
+    .neq("status", "succeeded")
+    .not("wire_payment_intent_id", "is", null)
+    .gte("created_at", since)
+    .order("created_at", { ascending: false })
+    .limit(5);
+  const results = await Promise.all(
+    (data ?? []).map((r) => reconcilePayment(r.wire_payment_intent_id as string).catch(() => "pending" as const))
+  );
+  return results.includes("succeeded");
+}

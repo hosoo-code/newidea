@@ -147,6 +147,13 @@ export default function PremiumClient({ plans }: { plans: Plan[] }) {
 
   // X дарахад: үр дүн гарсан бол цонхыг хаана. Гараагүй бол сүүлчийн шалгалт хийнэ:
   // төлөгдсөн бол "амжилттай" харуулна, үгүй бол ямар ч "амжилтгүй" дэлгэц гаргалгүй чимээгүй хаана.
+  // "Амжилтгүй/хугацаа дууссан" харсан ч төлсөн хэрэглэгч гараар дахин шалгана
+  async function recheck() {
+    if (!pay) return;
+    if ((await fetchStatus(pay.intentId)) === "succeeded") finish("success");
+    else toast.info("Төлбөр хараахан баталгаажаагүй байна. Төлсөн бол 1-2 минутын дараа дахин шалгана уу.");
+  }
+
   async function closePay() {
     if (!pay) return;
     const reset = () => {
@@ -278,12 +285,23 @@ export default function PremiumClient({ plans }: { plans: Plan[] }) {
                     ? "Таны Premium эрх идэвхжлээ. Баярлалаа!"
                     : result === "expired"
                       ? "Төлбөрийн хугацаа дууслаа. Дахин оролдоно уу."
-                      : "Төлбөр хийгдсэнгүй. Хэрэв төлсөн бол түр хүлээгээд хуудсаа шинэчилнэ үү."}
+                      : "Төлбөр хийгдсэнгүй. Хэрэв төлсөн бол доорх товчоор дахин шалгана уу, эсвэл Premium хуудсыг дахин нээхэд эрх автоматаар олгогдоно."}
                 </p>
+                {result !== "success" && (
+                  <button
+                    type="button"
+                    onClick={recheck}
+                    className="w-full rounded-lg border border-theme-primary py-2.5 font-semibold text-theme-primary"
+                  >
+                    Төлсөн бол дахин шалгах
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={closePay}
-                  className="w-full rounded-lg bg-theme-primary py-2.5 font-semibold text-black"
+                  className={`w-full rounded-lg py-2.5 font-semibold ${
+                    result === "success" ? "bg-theme-primary text-black" : "bg-gray-800 text-white"
+                  }`}
                 >
                   {result === "success" ? "Үргэлжлүүлэх" : "Хаах"}
                 </button>

@@ -1,4 +1,6 @@
+import { redirect } from "next/navigation";
 import { getCurrentProfile, isPremium } from "@/lib/auth";
+import { recoverRecentPayments } from "@/lib/payments";
 import { getPlans } from "@/lib/plans";
 import { formatDate, daysLeft } from "@/lib/format";
 import PremiumClient from "@/components/premium/PremiumClient";
@@ -11,6 +13,10 @@ export const metadata = { title: "Premium | Kino Mangas" };
 
 export default async function PremiumPage() {
   const [profile, plans] = await Promise.all([getCurrentProfile(), getPlans()]);
+
+  // "Амжилтгүй/хугацаа дууссан" гэж харагдсан ч дараа нь төлөгдсөн төлбөрийг Wire-аас шалгаж Premium олгоно.
+  // Олгосон бол хуудсыг шинээр ачаална (шинэ эрх шууд харагдана).
+  if (profile && (await recoverRecentPayments(profile.id))) redirect("/premium?paid=1");
   const active = isPremium(profile);
   const isAdmin = profile?.role === "admin";
   const until = profile?.premium_until ?? null;
