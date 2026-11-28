@@ -87,6 +87,10 @@ export default function CategoriesManager({ initial }: { initial: Category[] }) 
               Нүүр хуудсанд мөр болгон харуулах
             </label>
             <label className="flex items-center gap-2">
+              <input type="checkbox" className="h-4 w-4" checked={c.is_free} disabled={busy} onChange={(e) => patch(c.id, { is_free: e.target.checked })} />
+              Үнэгүй (Premium-гүй үзэж болно)
+            </label>
+            <label className="flex items-center gap-2">
               <input type="checkbox" className="h-4 w-4" checked={c.is_hero} disabled={busy} onChange={(e) => patch(c.id, { is_hero: e.target.checked })} />
               Том баннерт ашиглах
             </label>

@@ -32,6 +32,7 @@ export async function POST(req: NextRequest) {
       ...input,
       show_on_home: input.show_on_home ?? true,
       is_hero: false,
+      is_free: input.is_free ?? false,
       sort_order: (last?.sort_order ?? 0) + 1,
     });
     if (error) {

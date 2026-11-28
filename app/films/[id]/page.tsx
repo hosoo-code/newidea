@@ -5,6 +5,7 @@ import LocalPlayer from "@/components/local/LocalPlayer";
 import { getLocalMovie } from "@/lib/movies";
 import { signPlaybackUrl } from "@/lib/r2";
 import { getCurrentProfile, isPremium } from "@/lib/auth";
+import { isMovieFree } from "@/lib/categories";
 import Link from "next/link";
 
 // Signed URL тул хуудас бүрт шинээр үүснэ (cache хийхгүй)
@@ -29,7 +30,9 @@ export default async function FilmDetailPage({ params }: Props) {
   if (!movie) return <InfoNotFound />;
   // Premium (эсвэл admin) эрхтэй хэрэглэгчид л signed видео URL үүсгэнэ
   const profile = await getCurrentProfile();
-  const allowed = isPremium(profile);
+  // "Үнэгүй" ангиллын кино: Premium-гүй, нэвтрээгүй хүн ч үзнэ
+  const free = await isMovieFree(movie.category_ids);
+  const allowed = free || isPremium(profile);
   const playUrl = allowed && movie.video_url ? await signPlaybackUrl(movie.video_url) : null;
 
   return (
@@ -57,6 +60,7 @@ export default async function FilmDetailPage({ params }: Props) {
                 <span className="text-yellow-400 font-semibold">⭐ {Number(movie.rating).toFixed(1)}</span>
               )}
               {movie.runtime && <span>{movie.runtime} мин</span>}
+              {free && <span className="rounded-full bg-green-500/15 px-2.5 py-0.5 text-xs font-semibold text-green-400">Үнэгүй</span>}
             </div>
             {!!movie.genres?.length && (
               <div className="flex flex-wrap gap-2">

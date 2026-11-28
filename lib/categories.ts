@@ -6,9 +6,10 @@ export interface Category {
   sort_order: number;
   show_on_home: boolean;
   is_hero: boolean;
+  is_free: boolean; // энэ ангиллын кино Premium-гүй үзэгдэнэ
 }
 
-const COLS = "id,name,sort_order,show_on_home,is_hero";
+const COLS = "id,name,sort_order,show_on_home,is_hero,is_free";
 
 export async function getCategories(): Promise<Category[]> {
   try {
@@ -46,10 +47,29 @@ export function sanitizeCategoryInput(body: Record<string, unknown>, partial = f
   }
   if (body.show_on_home !== undefined) out.show_on_home = body.show_on_home === true;
   if (body.is_hero !== undefined) out.is_hero = body.is_hero === true;
+  if (body.is_free !== undefined) out.is_free = body.is_free === true;
   if (body.sort_order !== undefined) {
     const n = Number(body.sort_order);
     if (!Number.isInteger(n)) throw new Error("Эрэмбэ буруу байна");
     out.sort_order = n;
   }
   return out;
+}
+
+// Кино "үнэгүй" ангилалд багтдаг эсэх (Premium-гүй хүн үзэж болох эсэх). Зөвхөн сервер талд шалгана.
+export async function isMovieFree(categoryIds: number[] | null | undefined): Promise<boolean> {
+  if (!categoryIds || categoryIds.length === 0) return false;
+  try {
+    const { data, error } = await supabasePublic()
+      .from("categories")
+      .select("id")
+      .eq("is_free", true)
+      .in("id", categoryIds)
+      .limit(1);
+    if (error) throw error;
+    return (data?.length ?? 0) > 0;
+  } catch (e) {
+    console.error("[categories] isMovieFree failed:", e);
+    return false;
+  }
 }

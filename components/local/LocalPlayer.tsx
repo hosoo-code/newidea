@@ -100,7 +100,8 @@ export default function LocalPlayer({
   const [shield, setShield] = useState(false);
   const isFile = /\.(mp4|webm|ogg)(\?.*)?$/i.test(url.split("?")[0]) || /\.m3u8/i.test(url);
   // UUID-ийн эхний 8 тэмдэгт (бүтэн id-аар profiles хүснэгтээс хайж олно)
-  const wmText = viewerId ? `ID: ${viewerId.slice(0, 8)}` : null;
+  // Нэвтрээгүй зочин (үнэгүй кино) – ID байхгүй тул брэндийн watermark
+  const wmText = viewerId ? `ID: ${viewerId.slice(0, 8)}` : "Kino Mangas";
 
   // --- Тоглуулагчийн төлөв ---
   const [playing, setPlaying] = useState(false);
