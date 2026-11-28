@@ -1,0 +1,31 @@
+import { NextRequest, NextResponse } from "next/server";
+import { supabaseServer } from "@/lib/supabaseServer";
+import { normalizePhone, phoneToEmail } from "@/lib/phone";
+import { isPin, pinPassword } from "@/lib/pin";
+import { getClientIp, rateLimit } from "@/lib/rateLimit";
+
+// 4 оронтой PIN нь 10,000 хувилбартай тул brute-force-оос сэргийлж дугаар болон IP тус бүрээр оролдлогыг хязгаарлана.
+export async function POST(req: NextRequest) {
+  const b = await req.json().catch(() => null);
+  const phone = normalizePhone(String(b?.phone ?? ""));
+  if (!phone || !isPin(b?.pin)) return NextResponse.json({ error: "Дугаар эсвэл PIN буруу байна" }, { status: 400 });
+
+  const [byPhone, byIp] = await Promise.all([
+    rateLimit(`login:phone:${phone}`, 5, 15 * 60),
+    rateLimit(`login:ip:${getClientIp(req)}`, 30, 15 * 60),
+  ]);
+  if (!byPhone.allowed || !byIp.allowed)
+    return NextResponse.json({ error: "Хэт олон оролдлого. 15 минутын дараа дахин оролдоно уу" }, { status: 429 });
+
+  try {
+    const { error } = await (await supabaseServer()).auth.signInWithPassword({
+      email: phoneToEmail(phone),
+      password: pinPassword(phone, b.pin),
+    });
+    if (error) return NextResponse.json({ error: "Дугаар эсвэл PIN буруу байна" }, { status: 401 });
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    console.error("[login]", e);
+    return NextResponse.json({ error: e instanceof Error ? e.message : "Алдаа гарлаа" }, { status: 500 });
+  }
+}

@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { getCurrentProfile, isPremium } from "@/lib/auth";
 import { recoverRecentPayments } from "@/lib/payments";
-import { displayIdentity } from "@/lib/phone";
+import { displayIdentity, PHONE_EMAIL_DOMAIN } from "@/lib/phone";
+import ChangePinForm from "@/components/auth/ChangePinForm";
 import { getPlans } from "@/lib/plans";
 import { formatDate, daysLeft } from "@/lib/format";
 import PremiumClient from "@/components/premium/PremiumClient";
@@ -69,6 +70,8 @@ export default async function PremiumPage() {
                 {isAdmin ? "Admin" : active ? "Premium ✓" : "Үнэгүй"}
               </span>
             </section>
+
+            {profile.email?.endsWith(`@${PHONE_EMAIL_DOMAIN}`) && <ChangePinForm />}
 
             {active && !isAdmin && <p className="-mt-4 text-center text-xs text-gray-400">Сунгавал одоогийн хугацаан дээр нэмэгдэнэ.</p>}
 

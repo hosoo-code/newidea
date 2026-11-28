@@ -3,12 +3,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { supabaseBrowser } from "@/lib/supabaseBrowser";
-import { normalizePhone, phoneToEmail } from "@/lib/phone";
+import { normalizePhone } from "@/lib/phone";
 
 export default function AuthForm({ next }: { next: string }) {
   const [mode, setMode] = useState<"in" | "up">("in");
   const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
+  const [pin, setPin] = useState("");
+  const [pin2, setPin2] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -27,30 +28,20 @@ export default function AuthForm({ next }: { next: string }) {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     const p = normalizePhone(phone);
-    if (!p) {
-      toast.error("Утасны дугаар буруу байна (8 оронтой, жишээ: 99112233)");
-      return;
-    }
-    const email = phoneToEmail(p);
+    if (!p) return toast.error("Утасны дугаар буруу байна (8 оронтой, жишээ: 99112233)");
+    if (!/^\d{4}$/.test(pin)) return toast.error("PIN код 4 оронтой тоо байна");
+    if (mode === "up" && pin !== pin2) return toast.error("PIN код хоёр таарахгүй байна");
     setLoading(true);
-    const sb = supabaseBrowser();
     try {
-      if (mode === "in") {
-        const { error } = await sb.auth.signInWithPassword({ email, password });
-        if (error) throw new Error(error.message === "Invalid login credentials" ? "Дугаар эсвэл нууц үг буруу байна" : error.message);
-        router.push(next);
-        router.refresh();
-      } else {
-        const { data, error } = await sb.auth.signUp({ email, password });
-        if (error) throw new Error(/already registered/i.test(error.message) ? "Энэ дугаар бүртгэлтэй байна. Нэвтэрнэ үү" : error.message);
-        if (data.session) {
-          router.push(next);
-          router.refresh();
-        } else {
-          // Supabase дээр "Confirm email" асаалттай байвал session ирэхгүй
-          toast.error("Бүртгэл үүссэн ч нэвтэрсэнгүй. Supabase → Auth → Providers → Email → 'Confirm email'-ийг унтраана уу.");
-        }
-      }
+      const res = await fetch(mode === "in" ? "/api/auth/login" : "/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: p, pin }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.error ?? "Алдаа гарлаа");
+      router.push(next);
+      router.refresh();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Алдаа гарлаа");
     } finally {
@@ -91,16 +82,30 @@ export default function AuthForm({ next }: { next: string }) {
       />
       <input
         type="password"
+        inputMode="numeric"
         autoComplete={mode === "in" ? "current-password" : "new-password"}
         required
-        minLength={6}
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Нууц үг"
-        className="w-full rounded-lg bg-gray-900 border border-gray-700 px-3 py-2 text-white outline-none focus:border-theme-primary"
+        maxLength={4}
+        value={pin}
+        onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
+        placeholder="PIN код (4 орон)"
+        className="w-full rounded-lg bg-gray-900 border border-gray-700 px-3 py-2 text-white text-center tracking-[0.5em] outline-none focus:border-theme-primary"
       />
+      {mode === "up" && (
+        <input
+          type="password"
+          inputMode="numeric"
+          autoComplete="new-password"
+          required
+          maxLength={4}
+          value={pin2}
+          onChange={(e) => setPin2(e.target.value.replace(/\D/g, "").slice(0, 4))}
+          placeholder="PIN код давтах"
+          className="w-full rounded-lg bg-gray-900 border border-gray-700 px-3 py-2 text-white text-center tracking-[0.5em] outline-none focus:border-theme-primary"
+        />
+      )}
       <button
-        disabled={loading || !phone || !password}
+        disabled={loading || !phone || pin.length !== 4 || (mode === "up" && pin2.length !== 4)}
         className="w-full rounded-lg bg-theme-primary text-black font-semibold py-2 disabled:opacity-50"
       >
         {loading ? "..." : mode === "in" ? "Нэвтрэх" : "Бүртгүүлэх"}
