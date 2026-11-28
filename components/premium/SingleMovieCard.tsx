@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { MOVIE_PRICE } from "@/lib/plans";
 
-// Premium хуудсан дээрх "Нэг киног 4K (4,000₮)-өөр үзэх" сонголт.
-// Үнийг серверээс (MOVIE_PRICE) авна. Худалдан авалт нь кино бүрийн хуудас (/films/[id]) дээр хийгдэнэ.
+// Premium хуудсан дээрх "Нэг киног 4,000₮-өөр үзэх" сонголт.
+// Худалдан авалт нь кино бүрийн хуудас (/films/[id]) дээр хийгдэнэ.
 export default function SingleMovieCard() {
   return (
     <div className="mt-6 flex flex-col items-center gap-3 rounded-2xl border border-gray-800 bg-gray-900/50 p-5 text-center sm:flex-row sm:justify-between sm:text-left">
