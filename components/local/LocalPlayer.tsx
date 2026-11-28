@@ -110,6 +110,7 @@ export default function LocalPlayer({
   const [muted, setMuted] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [fs, setFs] = useState(false);
+  const [ratio, setRatio] = useState(16 / 9); // видеоны жинхэнэ харьцаа (metadata ирэхэд шинэчлэгдэнэ)
   const [showUI, setShowUI] = useState(true);
   const [flash, setFlash] = useState<{ side: "l" | "r"; n: number } | null>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -192,7 +193,10 @@ export default function LocalPlayer({
       pause: () => { setPlaying(false); setShowUI(true); },
       timeupdate: () => setCur(v.currentTime),
       durationchange: () => setDur(v.duration || 0),
-      loadedmetadata: () => setDur(v.duration || 0),
+      loadedmetadata: () => {
+        setDur(v.duration || 0);
+        if (v.videoWidth && v.videoHeight) setRatio(v.videoWidth / v.videoHeight);
+      },
       waiting: () => setBuffering(true),
       playing: () => setBuffering(false),
       canplay: () => setBuffering(false),
@@ -304,7 +308,9 @@ export default function LocalPlayer({
         tabIndex={0}
         onKeyDown={isFile ? onKey : undefined}
         onMouseMove={isFile ? wake : undefined}
-        className="protected-player relative w-full aspect-video rounded-xl overflow-hidden bg-black outline-none"
+        // Видео өөрийн харьцаагаараа харагдана (хар зайгүй); босоо видео дэлгэцээс хэтрэхгүй (80vh). Fullscreen-д дэлгэцийг дүүргэнэ.
+        style={isFile && !fs ? { aspectRatio: String(ratio), maxWidth: `calc(80vh * ${ratio})` } : undefined}
+        className={`protected-player relative w-full mx-auto rounded-xl overflow-hidden bg-black outline-none ${isFile ? "" : "aspect-video"}`}
         onContextMenu={(e) => e.preventDefault()}
       >
         {isFile ? (
