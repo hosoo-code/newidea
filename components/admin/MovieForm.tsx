@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { LocalMovie } from "@/lib/movies";
+import type { Category } from "@/lib/categories";
 
 type FormState = {
   title: string;
@@ -17,12 +18,14 @@ type FormState = {
   video_url: string;
   tmdb_id: string;
   published: boolean;
+  category_ids: number[];
 };
 
 const empty: FormState = {
   title: "", original_title: "", overview: "", poster_url: "", backdrop_url: "",
   release_year: "", rating: "", runtime: "", genres: "", video_url: "", tmdb_id: "",
   published: true,
+  category_ids: [],
 };
 
 // Бүх кино төрөл (TMDB-тэй ижил нэртэй тул "Бөглөх" товч автоматаар сонгоно)
@@ -38,7 +41,7 @@ const secTitle = "text-xs font-semibold uppercase tracking-wider text-theme-prim
 const ghostBtn =
   "inline-flex items-center justify-center rounded-xl bg-gray-800 hover:bg-gray-700 active:scale-95 border border-gray-700 text-white px-4 py-3 text-sm font-medium transition-all";
 
-export default function MovieForm({ movie }: { movie?: LocalMovie }) {
+export default function MovieForm({ movie, categories = [] }: { movie?: LocalMovie; categories?: Category[] }) {
   const router = useRouter();
   const [f, setF] = useState<FormState>(
     movie
@@ -55,6 +58,7 @@ export default function MovieForm({ movie }: { movie?: LocalMovie }) {
           video_url: movie.video_url ?? "",
           tmdb_id: movie.tmdb_id?.toString() ?? "",
           published: movie.published,
+          category_ids: movie.category_ids ?? [],
         }
       : empty
   );
@@ -62,13 +66,16 @@ export default function MovieForm({ movie }: { movie?: LocalMovie }) {
   const [busy, setBusy] = useState<string | null>(null);
   const [progress, setProgress] = useState<number | null>(null);
 
-  const set = (k: keyof FormState, v: string | boolean) => setF((p) => ({ ...p, [k]: v }));
+  const set = (k: keyof FormState, v: string | boolean | number[]) => setF((p) => ({ ...p, [k]: v }));
 
   const selectedGenres = f.genres.split(",").map((g) => g.trim()).filter(Boolean);
   // Жагсаалтад байхгүй (өмнө гараар бичсэн) төрлийг ч сонголт болгож харуулна
   const genreChoices = [...ALL_GENRES, ...selectedGenres.filter((g) => !ALL_GENRES.includes(g))];
   const toggleGenre = (g: string) =>
     set("genres", (selectedGenres.includes(g) ? selectedGenres.filter((x) => x !== g) : [...selectedGenres, g]).join(", "));
+
+  const toggleCategory = (id: number) =>
+    set("category_ids", f.category_ids.includes(id) ? f.category_ids.filter((x) => x !== id) : [...f.category_ids, id]);
 
   async function fillFromTmdb() {
     if (!f.tmdb_id) return toast.error("TMDB ID оруулна уу");
@@ -229,6 +236,41 @@ export default function MovieForm({ movie }: { movie?: LocalMovie }) {
             );
           })}
         </div>
+      </section>
+
+      {/* Ангилал (admin /admin/categories дээр үүсгэсэн) */}
+      <section className={card}>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className={secTitle}>Ангилал</h2>
+          <a href="/admin/categories" target="_blank" rel="noopener noreferrer" className="text-xs text-gray-400 underline hover:text-white">
+            Ангилал удирдах
+          </a>
+        </div>
+        {categories.length === 0 ? (
+          <p className="text-sm text-gray-400">Ангилал алга. “Ангилал удирдах” дээр дарж үүсгэнэ үү.</p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {categories.map((c) => {
+              const on = f.category_ids.includes(c.id);
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => toggleCategory(c.id)}
+                  className={`rounded-full border px-3.5 py-1.5 text-sm transition-all active:scale-95 ${
+                    on
+                      ? "border-theme-primary bg-theme-primary text-black font-semibold shadow-[0_0_12px_rgba(253,228,2,0.25)]"
+                      : "border-gray-700 bg-gray-900/80 text-gray-300 hover:border-gray-500 hover:text-white"
+                  }`}
+                >
+                  {on && "✓ "}
+                  {c.name}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       {/* 4. Зураг */}

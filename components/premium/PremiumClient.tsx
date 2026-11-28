@@ -145,20 +145,25 @@ export default function PremiumClient({ plans }: { plans: Plan[] }) {
     };
   }, [pay]);
 
-  // X дарахад: үр дүн гарсан бол цонхыг хаана. Гараагүй бол сүүлчийн шалгалт хийж,
-  // төлөгдсөн бол "амжилттай", үгүй бол "амжилтгүй" гэж харуулна.
+  // X дарахад: үр дүн гарсан бол цонхыг хаана. Гараагүй бол сүүлчийн шалгалт хийнэ:
+  // төлөгдсөн бол "амжилттай" харуулна, үгүй бол ямар ч "амжилтгүй" дэлгэц гаргалгүй чимээгүй хаана.
   async function closePay() {
     if (!pay) return;
-    if (result) {
-      const ok = result === "success";
+    const reset = () => {
+      stopTimers();
       setPay(null);
       setSelected(null);
       setResult(null);
+    };
+    if (result) {
+      const ok = result === "success";
+      reset();
       if (ok) router.refresh();
       return;
     }
     stopTimers();
-    finish((await fetchStatus(pay.intentId)) === "succeeded" ? "success" : "failed");
+    if ((await fetchStatus(pay.intentId)) === "succeeded") finish("success");
+    else reset();
   }
 
   async function buy(plan: string) {

@@ -11,6 +11,7 @@ export interface LocalMovie {
   rating: number | null;
   runtime: number | null;
   genres: string[] | null;
+  category_ids: number[] | null;
   video_url: string | null;
   tmdb_id: number | null;
   published: boolean;
@@ -34,16 +35,27 @@ export async function getLocalMovies(limit?: number): Promise<LocalMovie[]> {
   }
 }
 
+export interface MovieFilters {
+  categoryId?: number;
+  genre?: string;
+  year?: number;
+}
+
 export async function getLocalMoviesPage(
   page = 1,
-  pageSize = 24
+  pageSize = 24,
+  filters: MovieFilters = {}
 ): Promise<{ movies: LocalMovie[]; total: number }> {
   try {
     const from = (Math.max(1, page) - 1) * pageSize;
-    const { data, error, count } = await supabasePublic()
+    let q = supabasePublic()
       .from("movies")
       .select("*", { count: "exact" })
-      .eq("published", true)
+      .eq("published", true);
+    if (filters.categoryId) q = q.contains("category_ids", [filters.categoryId]);
+    if (filters.genre) q = q.contains("genres", [filters.genre]);
+    if (filters.year) q = q.eq("release_year", filters.year);
+    const { data, error, count } = await q
       .order("created_at", { ascending: false })
       .range(from, from + pageSize - 1);
     if (error) throw error;
@@ -51,6 +63,30 @@ export async function getLocalMoviesPage(
   } catch (e) {
     console.error("[movies] getLocalMoviesPage failed:", e);
     return { movies: [], total: 0 };
+  }
+}
+
+// "Төрөл" ба "Он" шүүлтүүрийн сонголтууд (нийтлэгдсэн киноноос)
+export async function getFilterOptions(): Promise<{ genres: string[]; years: number[] }> {
+  try {
+    const { data, error } = await supabasePublic()
+      .from("movies")
+      .select("genres,release_year")
+      .eq("published", true);
+    if (error) throw error;
+    const genres = new Set<string>();
+    const years = new Set<number>();
+    for (const m of data ?? []) {
+      (m.genres ?? []).forEach((g: string) => genres.add(g));
+      if (m.release_year) years.add(m.release_year);
+    }
+    return {
+      genres: [...genres].sort((a, b) => a.localeCompare(b)),
+      years: [...years].sort((a, b) => b - a),
+    };
+  } catch (e) {
+    console.error("[movies] getFilterOptions failed:", e);
+    return { genres: [], years: [] };
   }
 }
 
@@ -114,6 +150,9 @@ export function sanitizeMovieInput(body: Record<string, unknown>) {
     : typeof body.genres === "string"
     ? body.genres.split(",").map((g) => g.trim()).filter(Boolean)
     : [];
+  const category_ids = Array.isArray(body.category_ids)
+    ? [...new Set((body.category_ids as unknown[]).map(Number).filter((n) => Number.isInteger(n) && n > 0))]
+    : [];
   return {
     title,
     original_title: str(body.original_title),
@@ -124,8 +163,27 @@ export function sanitizeMovieInput(body: Record<string, unknown>) {
     rating: num(body.rating) ?? 0,
     runtime: num(body.runtime),
     genres,
+    category_ids,
     video_url: httpsUrl(body.video_url, "Видео"),
     tmdb_id: num(body.tmdb_id),
     published: body.published !== false,
   };
+}
+
+// Нэг ангиллын сүүлд нэмэгдсэн кинонууд (нүүр хуудасны мөр)
+export async function getLocalMoviesByCategory(categoryId: number, limit = 15): Promise<LocalMovie[]> {
+  try {
+    const { data, error } = await supabasePublic()
+      .from("movies")
+      .select("*")
+      .eq("published", true)
+      .contains("category_ids", [categoryId])
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return (data as LocalMovie[]) ?? [];
+  } catch (e) {
+    console.error("[movies] getLocalMoviesByCategory failed:", e);
+    return [];
+  }
 }

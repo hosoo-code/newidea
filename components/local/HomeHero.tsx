@@ -2,8 +2,8 @@ import Link from "next/link";
 import { Play } from "lucide-react";
 import type { LocalMovie } from "@/lib/movies";
 
-// Нүүрний том баннер – хамгийн сүүлд нэмсэн кино
-export default function HomeHero({ movie }: { movie: LocalMovie }) {
+// Нүүрний том баннер – admin-ы сонгосон ангиллын (жишээ нь Онцлох) хамгийн сүүлийн кино, эс бөгөөс хамгийн шинэ кино
+export default function HomeHero({ movie, badge = "Шинэ" }: { movie: LocalMovie; badge?: string }) {
   const img = movie.backdrop_url || movie.poster_url || "https://i.imgur.com/wjVuAGb.png";
   const rating = Number(movie.rating ?? 0);
   return (
@@ -13,7 +13,7 @@ export default function HomeHero({ movie }: { movie: LocalMovie }) {
       <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f1c] via-black/50 to-black/20" />
       <div className="absolute inset-x-0 bottom-0 mx-auto max-w-7xl space-y-3 px-4 pb-8 sm:px-8">
         <span className="inline-block rounded-md bg-theme-primary px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-black">
-          Шинэ
+          {badge}
         </span>
         <h1 className="line-clamp-2 text-3xl font-extrabold leading-tight text-white sm:text-5xl">{movie.title}</h1>
         <p className="text-sm text-gray-200">

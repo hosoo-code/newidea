@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { adminListCategories } from "@/lib/categories";
 import MovieForm from "@/components/admin/MovieForm";
 import { adminGetMovie } from "@/lib/movies";
 
@@ -9,11 +10,12 @@ export default async function EditMoviePage({ params }: { params: Promise<{ id: 
   const { id } = await params;
   const movie = await adminGetMovie(Number(id));
   if (!movie) notFound();
+  const categories = await adminListCategories().catch(() => []);
   return (
     <div className="app-bg-enhanced min-h-screen pt-24 pb-12 px-4">
       <div className="max-w-3xl mx-auto">
         <h1 className="text-2xl font-bold text-white mb-6">Кино засах</h1>
-        <MovieForm movie={movie} />
+        <MovieForm movie={movie} categories={categories} />
       </div>
     </div>
   );
