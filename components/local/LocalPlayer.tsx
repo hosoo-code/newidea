@@ -108,6 +108,8 @@ export default function LocalPlayer({
   const [dur, setDur] = useState(0);
   const [buffering, setBuffering] = useState(false);
   const [muted, setMuted] = useState(false);
+  const [volume, setVolume] = useState(1);
+  const [showVol, setShowVol] = useState(false); // утсан дээр дууны slider-ийн popup
   const [speed, setSpeed] = useState(1);
   const [fs, setFs] = useState(false);
   const [ratio, setRatio] = useState(16 / 9); // видеоны жинхэнэ харьцаа (metadata ирэхэд шинэчлэгдэнэ)
@@ -156,6 +158,19 @@ export default function LocalPlayer({
     if (!v) return;
     v.muted = !v.muted;
     setMuted(v.muted);
+    if (!v.muted && v.volume === 0) { v.volume = 0.5; setVolume(0.5); }
+    wake();
+  };
+  // Дууг 0–1 хооронд тохируулна (0 бол чимээгүй). iOS Safari видеоны дууг JS-ээр өөрчлөх боломжгүй (төхөөрөмжийн товчоор).
+  const changeVolume = (x: number) => {
+    const v = videoRef.current;
+    if (!v) return;
+    const n = Math.max(0, Math.min(1, x));
+    v.volume = n;
+    v.muted = n === 0;
+    setVolume(n);
+    setMuted(n === 0);
+    try { localStorage.setItem("km:vol", String(n)); } catch {}
     wake();
   };
 
@@ -183,6 +198,21 @@ export default function LocalPlayer({
     document.addEventListener("fullscreenchange", onFs);
     return () => document.removeEventListener("fullscreenchange", onFs);
   }, []);
+
+  // Сүүлд тохируулсан дууг сэргээнэ
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!isFile || !v) return;
+    try {
+      const saved = localStorage.getItem("km:vol");
+      if (saved !== null) {
+        const n = Math.max(0, Math.min(1, Number(saved)));
+        v.volume = n;
+        setVolume(n);
+        if (n === 0) { v.muted = true; setMuted(true); }
+      }
+    } catch {}
+  }, [isFile]);
 
   // Видеоны үйл явдлуудыг төлөвт холбоно
   useEffect(() => {
@@ -234,6 +264,8 @@ export default function LocalPlayer({
     else if (k === "arrowleft" || k === "j") seekBy(-10);
     else if (k === "arrowright" || k === "l") seekBy(10);
     else if (k === "m") toggleMute();
+    else if (k === "arrowup") { e.preventDefault(); changeVolume((videoRef.current?.volume ?? volume) + 0.1); }
+    else if (k === "arrowdown") { e.preventDefault(); changeVolume((videoRef.current?.volume ?? volume) - 0.1); }
     else if (k === "f") toggleFullscreen();
   };
 
@@ -386,9 +418,35 @@ export default function LocalPlayer({
                   <button type="button" onClick={cycleSpeed} aria-label="Хурд" className={`${btn} text-xs font-bold min-w-[44px]`}>
                     {speed}x
                   </button>
-                  <button type="button" onClick={toggleMute} aria-label="Дуу" className={btn}>
-                    {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-                  </button>
+                  {/* Дуу: desktop дээр mute товч + slider, утсан дээр товшихад slider popup гарна */}
+                  <div className="relative flex items-center">
+                    <button type="button" onClick={toggleMute} aria-label="Дуу хаах/нээх" className={`${btn} hidden sm:inline-flex`}>
+                      {muted || volume === 0 ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                    </button>
+                    <button type="button" onClick={() => { setShowVol((x) => !x); wake(); }} aria-label="Дууны түвшин" className={`${btn} sm:hidden`}>
+                      {muted || volume === 0 ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                    </button>
+                    <input
+                      type="range" min={0} max={1} step={0.05}
+                      value={muted ? 0 : volume}
+                      onChange={(e) => changeVolume(Number(e.target.value))}
+                      aria-label="Дууны түвшин"
+                      className="hidden sm:block w-20 h-1 accent-yellow-400 cursor-pointer"
+                    />
+                    {showVol && (
+                      <div className="sm:hidden absolute bottom-full right-0 mb-2 flex items-center gap-2 rounded-xl bg-black/90 border border-gray-700 px-3 py-2">
+                        <button type="button" onClick={() => changeVolume((muted ? 0 : volume) - 0.1)} aria-label="Дуу багасгах" className="h-8 w-8 rounded-full bg-gray-800 text-white text-lg leading-none">−</button>
+                        <input
+                          type="range" min={0} max={1} step={0.05}
+                          value={muted ? 0 : volume}
+                          onChange={(e) => changeVolume(Number(e.target.value))}
+                          aria-label="Дууны түвшин"
+                          className="w-32 h-1 accent-yellow-400"
+                        />
+                        <button type="button" onClick={() => changeVolume((muted ? 0 : volume) + 0.1)} aria-label="Дуу нэмэх" className="h-8 w-8 rounded-full bg-gray-800 text-white text-lg leading-none">+</button>
+                      </div>
+                    )}
+                  </div>
                   <button type="button" onClick={toggleFullscreen} aria-label="Бүтэн дэлгэц" className={btn}>
                     {fs ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
                   </button>
