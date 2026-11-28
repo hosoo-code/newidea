@@ -191,29 +191,36 @@ export default function PremiumClient({ plans }: { plans: Plan[] }) {
 
   return (
     <>
-      <div className={`grid grid-cols-1 gap-3 sm:gap-4 ${plans.length >= 4 ? "sm:grid-cols-2" : plans.length === 3 ? "sm:grid-cols-3" : plans.length === 2 ? "sm:grid-cols-2" : ""}`}>
+      <div className={`grid grid-cols-1 gap-4 ${plans.length >= 3 ? "sm:grid-cols-2" : plans.length === 2 ? "sm:grid-cols-2" : ""}`}>
         {plans.map((p) => {
           const perMonth = Math.round((p.amount / p.days) * 30);
           const best = plans.length > 1 && p.id === bestId;
           return (
             <div
               key={p.id}
-              className={`glass-container relative text-center space-y-3 ${best ? "!border-theme-primary" : ""}`}
+              className={`relative flex flex-col gap-4 rounded-2xl border p-5 text-center transition-all hover:-translate-y-0.5 ${
+                best
+                  ? "border-theme-primary bg-gradient-to-b from-yellow-400/10 to-gray-900/60 shadow-[0_0_24px_rgba(253,228,2,0.12)]"
+                  : "border-gray-800 bg-gray-900/50 hover:border-gray-600"
+              }`}
             >
               {best && (
-                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-theme-primary px-2.5 py-0.5 text-[11px] font-semibold text-black whitespace-nowrap">
-                  Хамгийн хэмнэлттэй
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-theme-primary px-3 py-1 text-[11px] font-bold text-black whitespace-nowrap">
+                  ★ Хамгийн хэмнэлттэй
                 </span>
               )}
-              <h3 className="text-lg font-semibold text-white">{p.label}</h3>
-              <p className="text-2xl sm:text-3xl font-bold text-theme-primary">{p.amount.toLocaleString("en-US")}₮</p>
-              <p className="text-xs text-gray-400">
-                {p.days} хоног · сард ≈ {perMonth.toLocaleString("en-US")}₮
+              <h3 className="text-base font-semibold text-gray-200">{p.label}</h3>
+              <p className="text-3xl font-extrabold text-white">
+                {p.amount.toLocaleString("en-US")}
+                <span className="ml-0.5 text-xl text-theme-primary">₮</span>
               </p>
+              <p className="text-xs text-gray-400">сард ≈ {perMonth.toLocaleString("en-US")}₮</p>
               <button
                 onClick={() => buy(p.id)}
                 disabled={!!busy}
-                className="w-full rounded-lg bg-theme-primary text-black font-semibold py-2.5 disabled:opacity-50"
+                className={`mt-auto w-full rounded-xl py-3 font-bold transition-all active:scale-95 disabled:opacity-50 ${
+                  best ? "bg-theme-primary text-black" : "bg-gray-800 text-white border border-gray-700 hover:border-theme-primary"
+                }`}
               >
                 {busy === p.id ? "..." : "QPay-аар төлөх"}
               </button>
@@ -236,7 +243,6 @@ export default function PremiumClient({ plans }: { plans: Plan[] }) {
                 <p className="text-xs text-gray-400">Сонгосон багц</p>
                 <h3 className="text-lg font-bold text-white">
                   Premium · {selected?.label}
-                  {selected && <span className="ml-2 text-sm font-normal text-gray-400">({selected.days} хоног)</span>}
                 </h3>
                 {selected && <p className="text-2xl font-bold text-theme-primary">{selected.amount.toLocaleString("en-US")}₮</p>}
               </div>

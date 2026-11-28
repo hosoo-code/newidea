@@ -1,8 +1,7 @@
 import { getCurrentProfile, isPremium } from "@/lib/auth";
 import { getPlans } from "@/lib/plans";
-import { daysLeft, formatDate } from "@/lib/format";
+import { formatDate } from "@/lib/format";
 import PremiumClient from "@/components/premium/PremiumClient";
-import CopyId from "@/components/premium/CopyId";
 import MediaDetailLayout from "@/components/layout/MediaDetailLayout";
 import Link from "next/link";
 
@@ -17,71 +16,53 @@ export default async function PremiumPage() {
 
   return (
     <MediaDetailLayout className="pt-16">
-      <div className="max-w-2xl mx-auto space-y-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-white text-center">Kino Mangas Premium</h1>
-        <p className="text-gray-300 text-center text-sm sm:text-base">Манай сангийн бүх киног хязгааргүй үзээрэй.</p>
+      <div className="max-w-3xl mx-auto space-y-8 pb-10">
+        {/* Hero */}
+        <header className="relative overflow-hidden rounded-3xl border border-yellow-400/20 bg-gradient-to-br from-yellow-400/15 via-gray-900/60 to-red-600/10 px-6 py-10 text-center">
+          <div className="pointer-events-none absolute -top-16 left-1/2 h-40 w-72 -translate-x-1/2 rounded-full bg-theme-primary/20 blur-3xl" />
+          <span className="relative inline-block rounded-full border border-theme-primary/40 bg-theme-primary/10 px-3 py-1 text-xs font-semibold tracking-wider text-theme-primary">
+            ★ PREMIUM
+          </span>
+          <h1 className="relative mt-4 text-3xl sm:text-4xl font-extrabold text-white">Kino Mangas Premium</h1>
+          <p className="relative mt-2 text-gray-300 text-sm sm:text-base">Манай сангийн бүх киног хязгааргүй үзээрэй.</p>
+        </header>
 
         {!profile ? (
-          <div className="glass-container text-center space-y-3">
+          <div className="rounded-2xl border border-gray-800 bg-gray-900/40 p-6 text-center space-y-4">
             <p className="text-gray-300">Premium авахын тулд эхлээд нэвтэрнэ үү.</p>
-            <Link href="/login?next=/premium" className="inline-block rounded-lg bg-theme-primary text-black font-semibold px-5 py-2">
+            <Link href="/login?next=/premium" className="inline-block rounded-xl bg-theme-primary text-black font-bold px-6 py-2.5 active:scale-95 transition-all">
               Нэвтрэх
             </Link>
           </div>
         ) : (
           <>
-            {/* Профайл */}
-            <section className="glass-container space-y-4" aria-label="Профайл">
-              <div className="flex items-center justify-between gap-3">
-                <h2 className="text-white font-semibold">Профайл</h2>
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                    isAdmin
-                      ? "bg-yellow-400/20 text-yellow-300"
-                      : active
+            {/* Миний эрх */}
+            <section aria-label="Миний эрх" className="flex items-center justify-between gap-4 rounded-2xl border border-gray-800 bg-gray-900/50 p-4 sm:p-5">
+              <div className="min-w-0">
+                <p className="text-xs text-gray-400">Нэвтэрсэн</p>
+                <p className="truncate text-white font-medium">{profile.email ?? "—"}</p>
+                <p className="mt-1 text-xs text-gray-400">
+                  {isAdmin
+                    ? "Хугацаагүй эрх (admin)"
+                    : until
+                      ? `${active ? "Дуусах огноо" : "Дууссан"}: ${formatDate(until)}`
+                      : "Premium идэвхжээгүй"}
+                </p>
+              </div>
+              <span
+                className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-bold ${
+                  isAdmin
+                    ? "bg-yellow-400/20 text-yellow-300"
+                    : active
                       ? "bg-green-500/20 text-green-400"
                       : "bg-gray-700/60 text-gray-300"
-                  }`}
-                >
-                  {isAdmin ? "Admin" : active ? "Premium" : "Үнэгүй"}
-                </span>
-              </div>
-
-              <dl className="space-y-3 text-sm">
-                <div className="space-y-1">
-                  <dt className="text-gray-400">Имэйл</dt>
-                  <dd className="text-white break-all">{profile.email ?? "—"}</dd>
-                </div>
-                <div className="space-y-1">
-                  <dt className="text-gray-400">ID</dt>
-                  <dd className="flex items-center gap-2">
-                    <code className="flex-1 min-w-0 text-sm text-white tracking-wider">{profile.id.slice(0, 8).toUpperCase()}</code>
-                    <CopyId value={profile.id} />
-                  </dd>
-                </div>
-                <div className="space-y-1">
-                  <dt className="text-gray-400">Premium дуусах огноо</dt>
-                  <dd className="text-white">
-                    {isAdmin ? (
-                      "Хугацаагүй (admin)"
-                    ) : until ? (
-                      <>
-                        {formatDate(until)}
-                        <span className={`ml-2 ${active ? "text-green-400" : "text-red-400"}`}>
-                          {active ? `(${daysLeft(until)} хоног үлдсэн)` : "(дууссан)"}
-                        </span>
-                      </>
-                    ) : (
-                      "Premium идэвхжээгүй"
-                    )}
-                  </dd>
-                </div>
-              </dl>
-
-              {active && !isAdmin && (
-                <p className="text-xs text-gray-400">Сунгавал үлдсэн хоног дээр нэмэгдэнэ.</p>
-              )}
+                }`}
+              >
+                {isAdmin ? "Admin" : active ? "Premium ✓" : "Үнэгүй"}
+              </span>
             </section>
+
+            {active && !isAdmin && <p className="-mt-4 text-center text-xs text-gray-400">Сунгавал одоогийн хугацаан дээр нэмэгдэнэ.</p>}
 
             {plans.length > 0 ? (
               <PremiumClient plans={plans.map(({ id, label, amount, days }) => ({ id, label, amount, days }))} />
